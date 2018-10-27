@@ -1,0 +1,142 @@
+:root {
+    /* colors */
+    --navbar-gray: rgb(237,237,237);
+    --header-green: rgb(90, 157, 159);
+    --star-red: rgb(255, 101, 45);
+    --dash-orange: rgb(255, 109, 56);
+    --message-blue:rgb(0, 148, 206);
+    --font-blue:rgb(149, 169, 195);
+    --placeholder-gray: rgb(167,166,171);
+
+    /* Dimensions */
+    --main-view-height: 85%;
+    --main-header-height: 10%;
+
+    /* Font */
+    font-family: 'Asap', sans-serif;
+}
+
+body {
+    height:560px;
+    width: 700px;
+    overflow: hidden;
+    margin-left: 250px;
+}
+
+
+#container {
+    border: 2px solid var(--navbar-gray);
+    height:100%;
+    width:100%;
+}
+
+/* =========================================== */
+/* ================= Navbar ================== */
+/* =========================================== */
+#navbar {
+    height: 70px;
+    background-color: var(--navbar-gray);
+    border: 1px solid var(--navbar-gray);
+}
+
+.header {
+    height: 12%;
+    background-color: var(--header-green);
+    color: white;
+}
+
+.header :first-child {
+    font-size:10px;
+    padding: 8px 0px 0px 7px;
+}
+
+.header :nth-child(2) {
+    font-size:14px;
+    padding: 8px 0px 0px 7px;
+}
+
+.content {
+    height: 88%;
+    background-color: white;
+}
+
+/* =========================================== */
+/* ============ Message Interface ============ */
+/* =========================================== */
+#message-interface {
+    float:left;
+    width:488px; /* (490 - 2 for border) */
+    height:var(--main-view-height);
+    /* border: 1px solid var(--navbar-gray); */
+}
+
+#message-header {
+    border-top: 1px solid var(--navbar-gray);
+    border-right: 1px solid white;
+}
+
+#message-display {
+    border-right: 1px solid var(--navbar-gray);
+}
+
+#message-write {
+
+    position:absolute;
+    top: 500px;
+    height: 50px;
+    width: 487px;
+    border-top: 1px solid var(--navbar-gray);
+    border-bottom : 1px solid var(--navbar-gray);
+    background: var(--header-green);
+
+}
+
+#message-write div {
+    float:left;
+    height:50px;
+}
+
+#message-write :nth-child(1) {
+    padding: 3px 8px 0px 6px;
+}
+
+#message-write :nth-child(1) img {
+    height:40px;
+}
+
+#message-write :nth-child(2) {
+    /* position: absolute;
+    left: 65px; */
+    width: 320px;
+}
+
+#message-write :nth-child(2) textarea {
+    height: 47px; /* 50 - 4 (for the padding) */
+    border-radius: 10px;
+    border: 0px solid white;
+    width: inherit;
+    /* color: var(--placeholder-grey) */
+}
+
+#message-write :nth-child(3) {
+    padding: 16px 0px 0px 25px;
+}
+
+/* =========================================== */
+/* ============ Group Interface ============== */
+/* =========================================== */
+#groupe-interface {
+    float:left;
+    width:212px; /*(210 - 2 for border)*/
+    height:var(--main-view-height);
+    border-top: 1px solid var(--navbar-gray);
+    /* border-left: 0px solid white; */
+}
+
+#group-header {
+
+}
+
+#group-toggle {
+    
+}
