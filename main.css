@@ -118,6 +118,14 @@ body {
     /* color: var(--placeholder-grey) */
 }
 
+:focus {
+    outline: -webkit-focus-ring-color auto 0px;
+    box-shadow: 0 0 1pt 1pt blue;
+}
+
+/* Hard "outline" with box-shadow: */
+
+
 #message-write :nth-child(3) {
     padding: 16px 0px 0px 25px;
 }
