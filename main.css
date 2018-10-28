@@ -39,6 +39,9 @@ body {
     border: 1px solid var(--navbar-gray);
 }
 
+/* == Main Window Header General Styles == */
+/* ======================================= */
+
 .header {
     height: 12%;
     background-color: var(--header-green);
@@ -53,7 +56,7 @@ body {
 .header :nth-child(2) {
     font-size:14px;
     padding: 8px 0px 0px 7px;
-}
+}	id="message-header"
 
 .content {
     height: 88%;
@@ -63,6 +66,7 @@ body {
 /* =========================================== */
 /* ============ Message Interface ============ */
 /* =========================================== */
+
 #message-interface {
     float:left;
     width:488px; /* (490 - 2 for border) */
@@ -70,17 +74,21 @@ body {
     /* border: 1px solid var(--navbar-gray); */
 }
 
-#message-header {
+/* Legacy, switch to new format */
+#message-interface .header {
     border-top: 1px solid var(--navbar-gray);
     border-right: 1px solid white;
 }
 
-#message-display {
+#message-interface .content {
     border-right: 1px solid var(--navbar-gray);
 }
 
-#message-write {
 
+/* ============ Message Write Box ============ */
+/* =========================================== */
+
+#message-write {
     position:absolute;
     top: 500px;
     height: 50px;
@@ -133,7 +141,8 @@ body {
 /* =========================================== */
 /* ============ Group Interface ============== */
 /* =========================================== */
-#groupe-interface {
+
+#group-interface {
     float:left;
     width:212px; /*(210 - 2 for border)*/
     height:var(--main-view-height);
@@ -141,10 +150,42 @@ body {
     /* border-left: 0px solid white; */
 }
 
-#group-header {
+/* ========= Group Header Styles ================ */
+/* ============================================== */
 
+/* Most header styles are defined in the general section */
+
+
+
+/* ========= Group Content Styles ================ */
+/* ============================================== */
+
+#group-interface .content {
+    padding: 14px 5px 0px 5px;
 }
 
-#group-toggle {
-    
+#group-interface .content > div:nth-of-type(2n+1) {
+    background-color: gray;
+}
+
+#group-interface .content > div:nth-of-type(2n) {
+    background-color: var(--header-green);
+}
+
+.group-selector {
+    width: 200px;
+    height: 30px;
+}
+
+.icon {
+    float:left;
+}
+
+.group-name {
+    float:left;
+    font-size: 16px;
+    /* Relative is not good, make absolute work */
+    position: relative;
+    top: 2px;
+    left: 20px;
 }
