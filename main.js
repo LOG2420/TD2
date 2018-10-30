@@ -128,13 +128,18 @@ groupListView.update = function() {
     let groupOption = groupOptionGenerator(newGroupName, "minus");
     // Find the default group node
     let defaultGroupNode = this.contentNode.firstElementChild;
-    // This gets the icon and changes it from a minus to a plus
-    let iconNode = defaultGroupNode.nextElementSibling.firstElementChild;
-    iconNode.classList.remove("fa-minus");
-    iconNode.classList.add("fa-plus");
-    // Add the new class
-    this.contentNode.insertBefore(groupOption, defaultGroupNode.nextElementSibling);
-    // Toggle the minus
+    if (defaultGroupNode.nextElementSibling) {
+        // This gets the icon and changes it from a minus to a plus
+        let iconNode = defaultGroupNode.nextElementSibling.firstElementChild;
+        iconNode.classList.remove("fa-minus");
+        iconNode.classList.add("fa-plus");
+        // Add the new class
+        this.contentNode.insertBefore(groupOption, defaultGroupNode.nextElementSibling);
+    }
+    else {
+        this.contentNode.appendChild(groupOption);
+    }
+
     
     
 }
@@ -208,8 +213,10 @@ function handleGroupClick() {
 // ========== initialize page =====================
 // ================================================
 
-groups.forEach((groupName)=>{
-    groupSelectorNode.appendChild(groupOptionGenerator(groupName))
-});
+
+groupListView.__init__();
+
+Model.__init__(["Général"]);
+
 
 
