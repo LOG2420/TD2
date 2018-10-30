@@ -7,6 +7,8 @@
     --message-blue:rgb(0, 148, 206);
     --font-blue:rgb(149, 169, 195);
     --placeholder-gray: rgb(167,166,171);
+    --groupGrayLight : rgb(249,249,249);
+    --groupGrayDark : rgb(237,237,237);
 
     /* Dimensions */
     --main-view-height: 85%;
@@ -48,15 +50,16 @@ body {
     color: white;
 }
 
-.header :first-child {
+.header>:first-child {
     font-size:10px;
     padding: 8px 0px 0px 7px;
 }
 
-.header :nth-child(2) {
+.header>:nth-child(2) {
     font-size:14px;
     padding: 8px 0px 0px 7px;
-}	id="message-header"
+    height:16px;
+}
 
 .content {
     height: 88%;
@@ -165,11 +168,11 @@ body {
 }
 
 #group-interface .content > div:nth-of-type(2n+1) {
-    background-color: gray;
+    background-color: var(--groupGrayLight);
 }
 
 #group-interface .content > div:nth-of-type(2n) {
-    background-color: var(--header-green);
+    background-color: var(--groupGrayDark);
 }
 
 .group-selector {
@@ -177,15 +180,19 @@ body {
     height: 30px;
 }
 
-.icon {
+/* Styles for the icons inside */
+.group-selector > * {
     float:left;
+    padding-top:4px;
+    padding-left:16px;
 }
 
-.group-name {
+
+/* .group-name {
     float:left;
     font-size: 16px;
-    /* Relative is not good, make absolute work */
+    Relative is not good, make absolute work
     position: relative;
     top: 2px;
     left: 20px;
-}
+} */
