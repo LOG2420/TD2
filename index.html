@@ -43,8 +43,8 @@
 						<div>
 							Groupes Disponibles
 							<span style="padding-left: 15px">
-								<i class="fas fa-plus"></i>
-								<i class="fas fa-cog"></i>
+								<i class="fas fa-plus clickable"></i>
+								<i class="fas fa-cog clickable"></i>
 							</span>
 						</div>
 
@@ -56,10 +56,14 @@
 	</div>
 
 	<!-- This might eventually be moved to the html -->
-	<div id="new-group-form" style="display:none;">
+	<div id="new-group-form"  style="display:none;">
 		<form>
-			<input type="text" name="newGroup">
-			<button type="submit" ></button>
+			<div class="group-selector">	
+					<button type="submit" >
+							<i class="fas fa-plus-square"></i>
+					</button>
+					<input type="text" name="newGroup">
+			</div>
 		</form>
 	</div>
 

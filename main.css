@@ -9,6 +9,7 @@
     --placeholder-gray: rgb(167,166,171);
     --groupGrayLight : rgb(249,249,249);
     --groupGrayDark : rgb(237,237,237);
+    --clickableColor: rgb(170, 186, 194);
 
     /* Dimensions */
     --main-view-height: 85%;
@@ -30,6 +31,14 @@ body {
     border: 2px solid var(--navbar-gray);
     height:100%;
     width:100%;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    color: var(--clickableColor);
 }
 
 /* =========================================== */
@@ -186,6 +195,26 @@ body {
     padding-top:4px;
     padding-left:16px;
 }
+
+#new-group-form {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+}
+#new-group-form i {
+    color:rgb(24, 219, 24);
+}
+
+#new-group-form button {
+    background: none;
+    border: none;
+}
+
+/* #new-group-form input {
+    height: 16px;
+    border: none;
+    background-color:white;
+} */
 
 
 /* .group-name {

@@ -31,10 +31,19 @@ function groupOptionGenerator(groupName, type = "star") {
     let element = classfiedDivGenerator("group-selector");
     let icon = makeIcon(type);
     let groupNameDiv = classfiedDivGenerator("group-name");
+    groupNameDiv.classList.add("clickable");
     groupNameDiv.innerText = groupName;
     element.appendChild(icon);
     element.appendChild(groupNameDiv);
+    element.addEventListener("click", handleGroupClick.bind({}, groupName));
     return element;
+}
+
+function chatViewGenerator(groupName) {
+    console.log("chatViewGenerator needs to be built");
+    let box = document.createElement("div");
+    box.innerText = groupName;
+    return box;
 }
 
 // =========================================
@@ -60,17 +69,20 @@ var Model = {
 
     __init__: function(groups) {
         this.views.groupList = groupListView;
-        this.views.newGroupForm = newGroupFormView 
+        this.views.newGroupForm = newGroupFormView; 
         groups.forEach((groupName)=>{
             this.addGroup(groupName);
         });
+        this.activeGroup = this.views[groups[0]];
+        // All views are by default turned off
+        this.activeGroup.toggleDisplay();
 
         // Should I update the view from here????
     },
     addGroup: function(groupName){
         this.groupViews.push(groupName);
         let newGroupChatView = Object.create(groupChatView);
-        newGroupChatView.__init__();
+        newGroupChatView.__init__(groupName);
         this.views[groupName] = newGroupChatView;
     }
 };
@@ -81,6 +93,7 @@ var newGroup = new Event("newGroup");
 document.addEventListener("changeGroup", function() {
     Model.previousGroup.toggleDisplay();
     Model.activeGroup.toggleDisplay();
+    Model.activeGroup.changeHeader();
 })
 
 document.addEventListener("newGroup", function() {
@@ -128,6 +141,8 @@ groupListView.update = function() {
     let groupOption = groupOptionGenerator(newGroupName, "minus");
     // Find the default group node
     let defaultGroupNode = this.contentNode.firstElementChild;
+
+
     if (defaultGroupNode.nextElementSibling) {
         // This gets the icon and changes it from a minus to a plus
         let iconNode = defaultGroupNode.nextElementSibling.firstElementChild;
@@ -149,13 +164,28 @@ groupListView.update = function() {
 var groupChatView = Object.create(View);
 
 groupChatView.node = document.querySelector("#message-interface");
+groupChatView.contentNode = document.querySelector("#message-interface .content");
+groupChatView.headerNode = document.querySelector("#message-interface .header");
 
-groupChatView.__init__ = function() {
-    
+groupChatView.__init__ = function(groupName) {
+    this.groupName = groupName;
+    let newChatRoom = chatViewGenerator(groupName);
+    newChatRoom.style.display = "none";
+    this.contentNode.appendChild(newChatRoom);
+    this.node = this.contentNode.lastElementChild;
 };
 
-groupChatView.update = function() {
+// groupChatView.toggleDisplay = function() {
 
+// }
+
+groupChatView.changeHeader = function() {
+    let headerTitle = this.headerNode.lastElementChild;
+    headerTitle.innerText = this.groupName;
+}
+
+groupChatView.update = function() {
+    // This has to do with chat functions
 }
 
 // Group Form View definition
@@ -193,18 +223,20 @@ function handleAddNewGroup(event) {
     event.preventDefault();
     let form = event.target;
 
-    let name = form[0].value;
+    let name = form[1].value;
+    console.log(name);
     Model.addGroup(name);
     document.dispatchEvent(newGroup);
 }
 
-function handleGroupClick() {
+function handleGroupClick(groupName) {
     // add a hover in css
     // getName of clicked object
     // Use name to find the class
+
     Model.previousGroup = Model.activeGroup;
-    Model.activeGroup = Model.groupViews[groupName];
-    document.dispatchEvent(changeGroups);
+    Model.activeGroup = Model.views[groupName];
+    document.dispatchEvent(changeGroup);
     
 }
 
