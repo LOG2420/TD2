@@ -196,11 +196,6 @@ body {
     padding-left:16px;
 }
 
-#new-group-form {
-    position: fixed;
-    top: 5px;
-    left: 5px;
-}
 #new-group-form i {
     color:rgb(24, 219, 24);
 }
@@ -208,6 +203,10 @@ body {
 #new-group-form button {
     background: none;
     border: none;
+}
+
+#new-group-form input {
+    width: 30px;
 }
 
 /* #new-group-form input {
