@@ -4,6 +4,7 @@
 
 // ======= Helpers for the generators ============
 // ===============================================
+
 /**
  * This function creates a classified icon element
  * It also colors the icon appropriately
@@ -109,19 +110,18 @@ function messageGenerator(message, user, timeStamp) {
  * @todo: Ask if this is still considered a class
  * @class
  * 
- * 
+ * @property {View} views: The different views used in the website (each having an access key)
+ * @property {String} groupViews: A list of all the chat-rooms access keys (for this.views) 
+ * @property {View} activeGroup : the active chat-room view object
+ * @property {View} previousGroup: the previous active chat-room (used to switch rooms) 
  */
 var Model = {
-    // There will be a groupList view
-    // There will be a newGroupForm view
-    views:{
-
-    },
-    // which will contain the the The group group selector view and all of the chat groups
-    // All of them get accessed with a key, which is the name labeled on the group-selection
-    groupViews:[], //A list of the groupNames the user is subsribed to
-    messages: {}, //This will contain a list of Message Objects for every
-    // groupChatView
+    views:{}, 
+    /** @todo: Name with space could make application crash, verify that */
+    groupViews:[], 
+    /** @todo: The messages property is not currently in use, feel free to 
+     * erase it, do whatever with it */
+    messages: {},
     activeGroup: null, //The current group
     previousGroup: null, //The previous group
 
@@ -159,6 +159,14 @@ var Model = {
         this.views[groupName] = newGroupChatView;
     }
 };
+
+// ============ Model  Events ======================
+// =================================================
+
+/** the following events get triggered when the controller
+ * modifies the Model and the views need to be changed
+ */
+
 /** @event: This event is triggers when a user changes group */
 var changeGroup = new Event("changeGroup");
 
@@ -187,7 +195,8 @@ document.addEventListener("newGroup", function() {
 //======================================================
 
 
-// Abstract class (ish)
+// This is an Interface for a view, but since OOP is a lie in JS,
+// We will not be creating a class for this with the class keyword.
 var View = {
     node: null, //Implemented in child
     toggleDisplay: function() {
@@ -253,6 +262,7 @@ groupListView.toggleForm = function() {
 
 /**
  * @class GroupChatView
+ * @todo
  */
 
 var groupChatView = Object.create(View);
@@ -263,7 +273,9 @@ groupChatView.headerNode = document.querySelector("#message-interface .header");
 
 groupChatView.__init__ = function(groupName) {
     this.groupName = groupName;
+    /** @todo: this generator needs to be properly implemented */
     let newChatRoom = chatViewGenerator(groupName);
+
     newChatRoom.style.display = "none";
     this.contentNode.appendChild(newChatRoom);
     this.node = this.contentNode.lastElementChild;
@@ -278,34 +290,20 @@ groupChatView.update = function() {
     // This has to do with chat functions
 }
 
-/**
- * @class : newGroupFormView
- */
-
-// var newGroupFormView = Object.create(View);
-// newGroupFormView.node = document.querySelector("#new-group-form");
-// // This gets the form
-// newGroupFormView.node.firstElementChild.addEventListener("submit", handleAddNewGroup);
-
-// newGroupFormView.toggleDisplay() = function() {
-
-// }
-
-// Has to have an update function that can append a message child (of the correct type
-// and format) tot the view, while updating the position of the rest
-// Ideas for this
-// Depending on the length of the message (in number of characters), a height is associated to it
-// Messages will have absolute position position will change at the arrival of every new message
-
-// Make a groupView for every new group that is added
-
-// events
-
+/** @todo: I assume you'll need this, but since I'm not a troll, delete this at will */
 
 var Message = {
 
 }
 
+// ========== Controller Logic ===================
+// ===============================================
+
+/**
+ * the following functions define how specific elements of the DOM
+ * modify the Model.
+ */
+ 
 
 let plusIcon = document.querySelector("#group-interface .header .fas.fa-plus");
 plusIcon.addEventListener("click", handleCreateNewGroup);
@@ -314,7 +312,14 @@ function handleCreateNewGroup(event) {
     Model.views.groupList.toggleForm();
 }
 
-// This is a controller function
+/**
+ * This is a callback function that gets called when
+ * the addNewGroup form in the group-list view
+ * gets submitted.
+ * 
+ * @function
+ * @param {Event} event 
+ */
 function handleAddNewGroup(event) {
     event.preventDefault();
     let form = event.target;
@@ -325,15 +330,19 @@ function handleAddNewGroup(event) {
     document.dispatchEvent(newGroup);
 }
 
-function handleGroupClick(groupName) {
-    // add a hover in css
-    // getName of clicked object
-    // Use name to find the class
 
+/**
+ * This function gets called when a group switch is toggled.
+ * The event listener is added to every group selector in 
+ * the group user interface
+ * 
+ * @function
+ * @param {String} groupName 
+ */
+function handleGroupClick(groupName) {
     Model.previousGroup = Model.activeGroup;
     Model.activeGroup = Model.views[groupName];
-    document.dispatchEvent(changeGroup);
-    
+    document.dispatchEvent(changeGroup);  
 }
 
 

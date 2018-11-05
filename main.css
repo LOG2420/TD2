@@ -19,6 +19,10 @@
     font-family: 'Asap', sans-serif;
 }
 
+/* =========================================== */
+/* ================= General ================= */
+/* =========================================== */
+
 body {
     height:560px;
     width: 700px;
@@ -33,6 +37,9 @@ body {
     width:100%;
 }
 
+/* ==== Hover machanic for all buttons === */
+/* ======================================= */
+
 .clickable {
     cursor: pointer;
 }
@@ -41,14 +48,7 @@ body {
     color: var(--clickableColor);
 }
 
-/* =========================================== */
-/* ================= Navbar ================== */
-/* =========================================== */
-#navbar {
-    height: 70px;
-    background-color: var(--navbar-gray);
-    border: 1px solid var(--navbar-gray);
-}
+
 
 /* == Main Window Header General Styles == */
 /* ======================================= */
@@ -70,10 +70,28 @@ body {
     height:16px;
 }
 
+
+/* == Main Window Content General Styles == */
+/* ======================================== */
+
 .content {
     height: 88%;
     background-color: white;
 }
+
+
+/* =========================================== */
+/* ================= Navbar ================== */
+/* =========================================== */
+#navbar {
+    height: 70px;
+    background-color: var(--navbar-gray);
+    border: 1px solid var(--navbar-gray);
+
+    /* TODO */
+}
+
+
 
 /* =========================================== */
 /* ============ Message Interface ============ */
@@ -94,6 +112,13 @@ body {
 
 #message-interface .content {
     border-right: 1px solid var(--navbar-gray);
+}
+
+/* ========= Chat Room Section ============ */
+/* =========================================== */
+
+#chat-room {
+    /* TODO */
 }
 
 
@@ -154,6 +179,12 @@ body {
 /* ============ Group Interface ============== */
 /* =========================================== */
 
+/** The following section affects styles in the group
+ * interface, which is the right most part  of the 
+ * page which contains a list of the names of all
+ * the chat rooms */
+
+
 #group-interface {
     float:left;
     width:212px; /*(210 - 2 for border)*/
@@ -164,6 +195,9 @@ body {
 
 /* ========= Group Header Styles ================ */
 /* ============================================== */
+
+
+
 
 /* Most header styles are defined in the general section */
 
@@ -196,6 +230,8 @@ body {
     padding-left:16px;
 }
 
+/* ======= Styles for the new group input ======== */
+/* =============================================== */
 #new-group-form i {
     color:rgb(24, 219, 24);
 }
@@ -206,21 +242,11 @@ body {
 }
 
 #new-group-form input {
-    width: 30px;
+    width: 120px;
+    height: 25px;
+    padding-top:5px;
+    border: none;
+    background-color: rgb(214, 205, 164)
 }
 
-/* #new-group-form input {
-    height: 16px;
-    border: none;
-    background-color:white;
-} */
 
-
-/* .group-name {
-    float:left;
-    font-size: 16px;
-    Relative is not good, make absolute work
-    position: relative;
-    top: 2px;
-    left: 20px;
-} */
