@@ -197,6 +197,10 @@ document.addEventListener("newGroup", function() {
 
 // This is an Interface for a view, but since OOP is a lie in JS,
 // We will not be creating a class for this with the class keyword.
+/**
+ * @class
+ * @abstract
+ */
 var View = {
     node: null, //Implemented in child
     toggleDisplay: function() {
@@ -264,7 +268,6 @@ groupListView.toggleForm = function() {
  * @class GroupChatView
  * @todo
  */
-
 var groupChatView = Object.create(View);
 
 groupChatView.node = document.querySelector("#message-interface");
@@ -323,7 +326,6 @@ function handleCreateNewGroup(event) {
 function handleAddNewGroup(event) {
     event.preventDefault();
     let form = event.target;
-
     let name = form[1].value;
     console.log(name);
     Model.addGroup(name);

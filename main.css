@@ -242,11 +242,13 @@ body {
 }
 
 #new-group-form input {
-    width: 120px;
+    padding:none;
+    width: 150px;
     height: 25px;
-    padding-top:5px;
+    /* padding-top:5px; */
     border: none;
     background-color: rgb(214, 205, 164)
 }
+
 
 
