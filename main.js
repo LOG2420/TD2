@@ -81,7 +81,7 @@ function newGroupFormGenerator() {
  * in which all the messages will be displayed
  * @param {Channel} channel : The active channel
  */
-function chatViewGenerator(channel) {
+function chatViewGenerator(groupName) {
     console.log("chatViewGenerator needs to be built");
     let box = document.createElement("div");
     box.innerText = groupName;
@@ -152,10 +152,13 @@ var Model = {
      * @method
      * @param {String} groupName 
      */
-    addGroup: function(groupName){
+    addGroup: function(groupName, groupId){
         this.groupViews.push(groupName);
+
+        // This is where the change would take place
+
         let newGroupChatView = Object.create(groupChatView);
-        newGroupChatView.__init__(groupName);
+        newGroupChatView.__init__(groupName, groupId);
         this.views[groupName] = newGroupChatView;
     }
 };
@@ -274,8 +277,9 @@ groupChatView.node = document.querySelector("#message-interface");
 groupChatView.contentNode = document.querySelector("#message-interface .content");
 groupChatView.headerNode = document.querySelector("#message-interface .header");
 
-groupChatView.__init__ = function(groupName) {
+groupChatView.__init__ = function(groupName, groupId) {
     this.groupName = groupName;
+    this.groupId = groupId;
     /** @todo: this generator needs to be properly implemented */
     let newChatRoom = chatViewGenerator(groupName);
 
@@ -323,7 +327,9 @@ function handleAddNewGroup(event) {
     let form = event.target;
     let name = form[1].value;
     console.log(name);
-    Model.addGroup(name);
+    //proper id needs to be found
+    let id = Math.floor(Math.random()*1000000).toString();
+    Model.addGroup(name, id);
     document.dispatchEvent(newGroup);
 }
 
