@@ -121,7 +121,7 @@ var Model = {
     groupViews:[], 
     /** @todo: The messages property is not currently in use, feel free to 
      * erase it, do whatever with it */
-    messages: {},
+    channels: {},
     activeGroup: null, //The current group
     previousGroup: null, //The previous group
 
@@ -357,5 +357,8 @@ groupListView.__init__();
 
 Model.__init__(["Général"]);
 
+var ws = new WebSocket("ws://log2420-nginx.info.polymtl.ca/chatservice?username=Alexandre");
 
-
+ws.onmessage = function(msg) {
+    msg.eventType;
+}
