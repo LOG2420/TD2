@@ -75,28 +75,40 @@ function newGroupFormGenerator() {
 }
 
 /**
- * @todo: Finish this function
- * This function creates
  * @function This function creates an element for the chat view
  * in which all the messages will be displayed
  * @param {Channel} channel : The active channel
  */
 function chatViewGenerator(channel) {
-    console.log("chatViewGenerator needs to be built");
-    let box = document.createElement("div");
-    box.innerText = groupName;
-    return box;
+    let chatRoom = classfiedDivGenerator("chat-room");
+    for (msg in channel.messages){
+        chatRoom.appendChild(messageGenerator(msg));
+    }
+    return chatRoom;
 }
 
 /**
- * @todo: implement this function
  * @function: This function generate a messagebox element
- * @param {String} message 
- * @param {String} user 
- * @param {Stirng} timeStamp 
+ * @param Message message 
  */
-function messageGenerator(message, user, timeStamp) {
-
+function messageGenerator(message) {
+    if (message.sender == Model.currentUser){
+        let msg = classfiedDivGenerator("outbound-msg");
+        let msgContent = classfiedDivGenerator("msg-box-self");
+        let timeStamp = classfiedDivGenerator("outbound-time");
+    }
+    else {
+        let msg = classfiedDivGenerator("incoming-msg");
+        let userName = classfiedDivGenerator("user-name");
+        let msgContent = classfiedDivGenerator("msg-box-other");
+        let timeStamp = classfiedDivGenerator("incoming-time");
+        msg.appendChild(userName);
+    }
+    msgContent.innerText(message.data);
+    timeStamp.innerText(message.timeStamp);
+    msg.appendChild(msgContent);
+    msg.appendChild(timeStamp);
+    return msg;
 }
 
 // =========================================
@@ -124,9 +136,11 @@ var Model = {
     messages: {},
     activeGroup: null, //The current group
     previousGroup: null, //The previous group
+    /* Temporary */
+    currentUser: "Spaghet",
 
     /**
-     * This function will initialize the model and create trigger the 
+     * This function will initialize the model and trigger the 
      * creation of all of the necessary views that need to present on page load
      * @todo: Ask if this counts as a constructor
      * @method
