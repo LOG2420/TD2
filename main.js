@@ -79,9 +79,9 @@ function newGroupFormGenerator() {
  * This function creates
  * @function This function creates an element for the chat view
  * in which all the messages will be displayed
- * @param {String} groupName : The name of the group
+ * @param {Channel} channel : The active channel
  */
-function chatViewGenerator(groupName) {
+function chatViewGenerator(channel) {
     console.log("chatViewGenerator needs to be built");
     let box = document.createElement("div");
     box.innerText = groupName;
@@ -293,11 +293,6 @@ groupChatView.update = function() {
     // This has to do with chat functions
 }
 
-/** @todo: I assume you'll need this, but since I'm not a troll, delete this at will */
-
-var Message = {
-
-}
 
 // ========== Controller Logic ===================
 // ===============================================
