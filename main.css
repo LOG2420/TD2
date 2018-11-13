@@ -88,11 +88,65 @@ body {
     background-color: var(--navbar-gray);
     border: 1px solid var(--navbar-gray);
 }
-/* 
+
 #navbar-titre {
+    padding-left: 15px;
+    padding-top: 10px;
+    font-size: 30px;
+    display: flex;
+}
 
-} */
+#navbar-poly {
+    color: #f36e27;
+}
 
+#navbar-chat {
+    color: #2884bd;
+}
+
+#navbar-users {
+    padding-top: 13px;
+    font-size: 15px;
+}
+
+#navbar-username {
+    font-size: 8px;
+    text-align: center;
+    color: 	#34a853;
+}
+
+#navbar-one-user {
+    margin-left: 388px;
+    padding-right: 8px;
+    font-size: 15px;
+    padding-top: 13px;
+    width: 40px;
+}
+
+#navbar-user-symbol {
+    padding-left: 14px;
+}
+
+#navbar-others {
+    margin-left: 18px;
+    font-size: 15px;
+    padding-top: 13px;
+}
+
+#navbar-refresh {
+    display: flex;
+    cursor: pointer;
+}
+
+#notification {
+    text-align: center;
+    font-size: 10px;
+    border-radius: 5px;
+    background: red;
+    color: white;
+    height: 15px;
+    width: 11px;
+}
 
 
 /* =========================================== */
@@ -142,11 +196,14 @@ body {
     float:right;
     width: 100%;
     padding-top: 10px;
+    overflow: auto;
 }
 
 #incoming-time {
     float:left;
     display: block;
+    margin-top: 5px;
+    margin-left: 10px;
 }
 
 #outbound-time {
@@ -155,7 +212,7 @@ body {
 }
 
 #msg-box-other {
-    background-color:  #dedede;
+    background-color:  #e5e6ea;
     border-radius: 15px;
     padding: 10px;
     width: 180px;
@@ -164,7 +221,8 @@ body {
 #msg-box-self {
     float: right;
     text-align: right;
-    background-color:  #dedede;
+    background-color:  #2884bd;
+    color: white;
     border-radius: 15px;
     padding: 10px;
     width: 180px;
@@ -174,6 +232,11 @@ body {
     clear: both;
     content: "";
     display: block;
+}
+
+#chatbox-user-name {
+    color: #aaaaaa;
+    margin-bottom: 5px;
 }
 
 
@@ -221,6 +284,10 @@ body {
 :focus {
     outline: -webkit-focus-ring-color auto 0px;
     box-shadow: 0 0 1pt 1pt blue;
+}
+
+#send {
+    cursor: pointer;
 }
 
 /* Hard "outline" with box-shadow: */

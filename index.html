@@ -7,15 +7,28 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	
 	<link rel="stylesheet" href="main.css">
+	<meta charset="UTF-8">
 </head>
 <body>
 	<div id="container">
 		<div id="navbar">
-<!-- 			<div id="navbar-titre">
-				<div>Poly</div>
-				<i class="fas fa-users"></i>
-				<div>Chat</div>
-			</div> -->
+ 			<span id="navbar-titre">
+				<div id="navbar-refresh">
+					<div id="navbar-poly">Poly</div>
+					<div id="navbar-users"><i class="fas fa-users"></i></div>
+					<div id="navbar-chat">Chat</div>
+				</div>
+				<div id="navbar-one-user">
+					<div id="navbar-user-symbol"><i class="far fa-user"></i></div>
+					<div id="navbar-username">username</div>
+				</div>
+				<div id="navbar-others">
+					<i class="far fa-bell"></i>
+					<div id="notification">0</div>
+				</div>
+				<div id="navbar-others"><i class="fas fa-globe"></i></div>
+				<div id="navbar-others"><i class="fas fa-cog"></i></div>
+			 </span>
 		</div>
 		<div id="message-interface">
 				<div class="header">
@@ -29,7 +42,7 @@
 				<div class="content">
 					<div id="chat-room">
 						<div id="incoming-msg">
-							<div id="user-name">Admin</div>
+							<div id="chatbox-user-name">Admin</div>
 							<div id="msg-box-other">msg oyeeeeeeeeeeeee</div>
 							<div id="incoming-time">Timestamp</div>
 						</div>
