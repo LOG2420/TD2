@@ -47,12 +47,13 @@ function classfiedDivGenerator(className) {
 function groupOptionGenerator(groupName, type = "star") {
     let element = classfiedDivGenerator("group-selector");
     let icon = makeIcon(type);
+
     let groupNameDiv = classfiedDivGenerator("group-name");
     groupNameDiv.classList.add("clickable");
     groupNameDiv.innerText = groupName;
+    groupNameDiv.addEventListener("click", handleGroupClick.bind({}, groupName));
     element.appendChild(icon);
     element.appendChild(groupNameDiv);
-    element.addEventListener("click", handleGroupClick.bind({}, groupName));
     return element;
 }
 
@@ -137,9 +138,8 @@ function messageGenerator(message) {
  * @property {View} previousGroup: the previous active chat-room (used to switch rooms) 
  */
 var Model = {
-    views:{}, 
-    /** @todo: Name with space could make application crash, verify that */
-    groupViews:[], 
+    groupViews:{}, 
+    groupListView:null,
     /** @todo: The messages property is not currently in use, feel free to 
      * erase it, do whatever with it */
     channels: {},
@@ -156,15 +156,12 @@ var Model = {
      * @constructor
      * @param {Array[Strings]} groups : The groups that are initialized on page load 
      */
-    __init__: function(groups) {
-        this.views.groupList = groupListView;
+    __init__: function() {
+        this.groupListView = groupListView;
         //this.views.newGroupForm = newGroupFormView; 
-        groups.forEach((groupName)=>{
-            this.addGroup(groupName);
-        });
-        this.activeGroup = this.views[groups[0]];
+        // this.activeGroup = this.views[groups[0]];
         // All views are by default turned off
-        this.activeGroup.toggleDisplay();
+        // this.activeGroup.toggleDisplay();
 
         // Should I update the view from here????
     },
@@ -175,14 +172,21 @@ var Model = {
      * @method
      * @param {String} groupName 
      */
-    addGroup: function(groupName, groupId){
-        this.groupViews.push(groupName);
-
+    addGroup: function(channel){
         // This is where the change would take place
-
         let newGroupChatView = Object.create(groupChatView);
-        newGroupChatView.__init__(groupName, groupId);
-        this.views[groupName] = newGroupChatView;
+        newGroupChatView.__init__(channel.name, channel.id);
+        this.groupViews[channel.id] = newGroupChatView;
+        this.channels[channel.id] = channel;
+    },
+
+    setSocket : function(ws) {
+        this.ws = ws;
+    },
+
+    clearGroups : function() {
+        this.groupViews = {};
+        this.channels = {};
     }
 };
 
@@ -206,14 +210,32 @@ document.addEventListener("changeGroup", function() {
 })
 
 /** @event: This event is triggers when a user creates a group*/
-var newGroup = new Event("newGroup");
+var updateGroups = new Event("updateGroups");
 /** @listens: for the newGroup event and updates the groupList view */
-document.addEventListener("newGroup", function() {
-    
-    //Model.views.newGroupForm.toggleDisplay();
-    Model.views.groupList.toggleForm();
-    Model.views.groupList.update();
+document.addEventListener("updateGroups", function() {
+    Model.groupListView.clearView();
+    Object.keys(Model.groupViews).forEach((groupId)=>{
+        Model.groupListView.addNewGroup(groupId);
+    });
+    // Model.groupViews.forEach((groupId)=>{
+    //     if(!(groupId in Model.groupListView.displayedGroupIds))
+    //         Model.groupListView.addNewGroup(groupId);
+    // })  
 })
+
+var toggleForm = new Event("toggleForm");
+
+document.addEventListener("toggleForm", function() {
+    Model.groupListView.toggleForm();
+})
+
+// var initialGroups =  new Event("initialGroups");
+
+// document.addEventListener("initialGroups", function(){
+//     Model.groupViews.forEach((groupId)=>{
+//         Model.groupListView.addNewGroup(groupId);
+//     });
+// })
 
 
 //======================================================
@@ -248,28 +270,29 @@ groupListView.node = document.querySelector("#group-interface");
 groupListView.contentNode = document.querySelector('#group-interface .content')
 
 groupListView.__init__ = function() {
-    let defaultOption = groupOptionGenerator("Général", "star");
-    this.contentNode.appendChild(defaultOption);
+    // let defaultOption = groupOptionGenerator("Général", "star");
+    // this.contentNode.appendChild(defaultOption);
 };
 
-groupListView.update = function() {
-    // This is what I call risky business
-    // This works since the group is updated every add of group
-    let newGroupName = Model.groupViews[Model.groupViews.length-1];
-    let groupOption = groupOptionGenerator(newGroupName, "minus");
-    // Find the default group node
-    let defaultGroupNode = this.contentNode.firstElementChild;
-
-
-    if (defaultGroupNode.nextElementSibling) {
-        // This gets the icon and changes it from a minus to a plus
-        let iconNode = defaultGroupNode.nextElementSibling.firstElementChild;
-        iconNode.classList.remove("fa-minus");
-        iconNode.classList.add("fa-plus");
-        // Add the new class
-        this.addAfterDefaultGroup(groupOption);
+groupListView.clearView = function(){
+    while (this.contentNode.firstChild) {
+        this.contentNode.removeChild(this.contentNode.firstChild);
     }
+}
+
+groupListView.addNewGroup = function(channelId) {
+    if(Model.channels[channelId].name == "Général") {
+        let defaultGroup = groupOptionGenerator("Général", "star");
+        this.contentNode.appendChild(defaultGroup);
+    }
+    // There should always be a General if the function gets to this point
     else {
+        let iconName = Model.channels[channelId].joinStatus ? "minus" : "plus";
+        let groupOption = groupOptionGenerator(Model.channels[channelId].name, iconName);
+
+        // let defaultGroupNode = this.contentNode.firstElementChild;
+        let iconNode = groupOption.firstChild;
+        iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
         this.contentNode.appendChild(groupOption);
     }
 }
@@ -334,7 +357,7 @@ let plusIcon = document.querySelector("#group-interface .header .fas.fa-plus");
 plusIcon.addEventListener("click", handleCreateNewGroup);
 
 function handleCreateNewGroup(event) {
-    Model.views.groupList.toggleForm();
+    document.dispatchEvent(toggleForm);
 }
 
 /**
@@ -346,14 +369,19 @@ function handleCreateNewGroup(event) {
  * @param {Event} event 
  */
 function handleAddNewGroup(event) {
+    // Needs to be fixed after this
     event.preventDefault();
     let form = event.target;
     let name = form[1].value;
     console.log(name);
     //proper id needs to be found
-    let id = Math.floor(Math.random()*1000000).toString();
-    Model.addGroup(name, id);
-    document.dispatchEvent(newGroup);
+    // let id = Math.floor(Math.random()*1000000).toString();
+    let message = new Message("onCreateChannel", null, name, Model.currentUser, new Date() );
+    let messageJson = JSON.stringify(message);
+    Model.ws.send(messageJson);
+
+    // document.dispatchEvent(newGroup);
+    // document.dispatchEvent(toggleForm);
 }
 
 
@@ -367,8 +395,22 @@ function handleAddNewGroup(event) {
  */
 function handleGroupClick(groupName) {
     Model.previousGroup = Model.activeGroup;
-    Model.activeGroup = Model.views[groupName];
+    Model.activeGroup = Model.groupViews[groupName];
     document.dispatchEvent(changeGroup);  
+}
+
+// Group id will get binded to function
+function iconChannelToggle(groupId, event) {
+    let message;
+    let icon = event.target;
+
+    let eventType = icon.classList.contains("fa-plus") ? "onJoinChannel" : "onLeaveChannel";
+
+    message = new Message(eventType, groupId, null, Model.currentUser, new Date());
+
+    let jsonMessage = JSON.stringify(message);
+    Model.ws.send(jsonMessage);
+
 }
 
 
@@ -378,11 +420,4 @@ function handleGroupClick(groupName) {
 
 
 groupListView.__init__();
-
-Model.__init__(["Général"]);
-
-var ws = new WebSocket("ws://log2420-nginx.info.polymtl.ca/chatservice?username=Alexandre");
-
-ws.onmessage = function(msg) {
-    msg.eventType;
-}
+Model.__init__();
