@@ -147,6 +147,7 @@ var Model = {
     previousGroup: null, //The previous group
     /* Temporary */
     currentUser: "Spaghet",
+    newMessages: 0,
 
     /**
      * This function will initialize the model and trigger the 
@@ -164,6 +165,9 @@ var Model = {
         // this.activeGroup.toggleDisplay();
 
         // Should I update the view from here????
+        
+        // TODO: is this a good place to put this:
+        this.showUsername();
     },
 
     /**
@@ -187,8 +191,14 @@ var Model = {
     clearGroups : function() {
         this.groupViews = {};
         this.channels = {};
+    },
+
+
+    showUsername: function() {
+        document.getElementById("navbar-username").innerHTML = Model.currentUser;
     }
-};
+
+}
 
 // ============ Model  Events ======================
 // =================================================
@@ -223,19 +233,28 @@ document.addEventListener("updateGroups", function() {
     // })  
 })
 
+
 var toggleForm = new Event("toggleForm");
 
 document.addEventListener("toggleForm", function() {
     Model.groupListView.toggleForm();
 })
 
-// var initialGroups =  new Event("initialGroups");
+/** @event: This event triggers a notification bubble to appear with the number of new messages */
+var newMessage = new Event("newMessage");
+/** @listens: for the new message event and updates the view */
+document.addEventListener("newMessage", function() {
+    let notif = document.getElementById("notification");
+    notif.style.display = "inline";
+    notif.innerText = Model.newMessages;
+})
 
-// document.addEventListener("initialGroups", function(){
-//     Model.groupViews.forEach((groupId)=>{
-//         Model.groupListView.addNewGroup(groupId);
-//     });
-// })
+var noNewMessage = new Event("removeNotifications");
+
+document.addEventListener("noNewMessage", function() {
+    document.querySelector("#notification").style.display = "hidden";
+})
+
 
 
 //======================================================
@@ -334,13 +353,13 @@ groupChatView.__init__ = function(groupName, groupId) {
     this.node = this.contentNode.lastElementChild;
 };
 
-groupChatView.changeHeader = function() {
-    let headerTitle = this.headerNode.lastElementChild;
-    headerTitle.innerText = this.groupName;
+groupChatView.changeHeader = function() {retirernotif
+    let headerTitle = this.headerNode.lasretirernotif
+    headerTitle.innerText = this.groupNamretirernotif
 }
 
 groupChatView.update = function() {
-    // This has to do with chat functions
+    // This has to do with chat functionsretirernotif
 }
 
 
@@ -412,6 +431,43 @@ function iconChannelToggle(groupId, event) {
     Model.ws.send(jsonMessage);
 
 }
+
+
+/**
+ * This function gets called when the user presses the 
+ * PolyChat logo, it refreses the page
+ * 
+ * @function
+ */
+let navbarRefresh = document.querySelector("#navbar-refresh");
+navbarRefresh.addEventListener("click", refreshPage)
+
+function refreshPage() {
+    location.reload(true);
+}
+
+/**
+ * This function is TEMPORARY, for Testing purposes
+ * Will update the number of new messages when the user presses the send button
+ * 
+ * @function
+ */
+let envoyer = document.querySelector("#send");
+envoyer.addEventListener("click", onNewMessage);
+
+function onNewMessage() {
+    Model.newMessages += 1;
+    document.dispatchEvent(newMessage)
+}
+
+let notifBubble = document.querySelector("#notification");
+notifBubble.addEventListener("click", removeNotif);
+
+function removeNotif() {
+    Model.newMessages = 0;
+    document.dispatchEvent(removeNotifications);
+}
+
 
 
 // ================================================
