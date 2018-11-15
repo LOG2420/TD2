@@ -98,7 +98,7 @@ function chatViewGenerator(channel) {
 }
 
 /**
- * @function: This function generate a messagebox element
+ * @function: This function generates a messagebox element
  * @param Message message 
  */
 function messageGenerator(message) {
@@ -211,12 +211,15 @@ var Model = {
 var changeGroup = new Event("changeGroup");
 
 /** @listens: for the changeGroup event and toggles the displays
- * of the olf view and the new view (now the current view);
+ * of the old view and the new view (now the current view);
  */
 document.addEventListener("changeGroup", function() {
-    Model.previousGroup.toggleDisplay();
+    if (Model.previousGroup != null){
+        Model.previousGroup.toggleDisplay();
+    }
     Model.activeGroup.toggleDisplay();
     Model.activeGroup.changeHeader();
+    document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
 /** @event: This event is triggers when a user creates a group*/
@@ -249,7 +252,7 @@ document.addEventListener("newMessage", function() {
     notif.innerText = Model.newMessages;
 })
 
-var noNewMessage = new Event("removeNotifications");
+var removeNotifications = new Event("removeNotifications");
 
 document.addEventListener("noNewMessage", function() {
     document.querySelector("#notification").style.display = "hidden";

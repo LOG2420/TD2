@@ -139,6 +139,10 @@ body {
 }
 
 #notification {
+    position: absolute;
+    overflow: visible;
+    margin-left: 10px;
+    margin-bottom: 25px;
     text-align: center;
     font-size: 10px;
     border-radius: 5px;
