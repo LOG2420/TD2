@@ -51,7 +51,6 @@ function groupOptionGenerator(groupName, type = "star") {
     let groupNameDiv = classfiedDivGenerator("group-name");
     groupNameDiv.classList.add("clickable");
     groupNameDiv.innerText = groupName;
-    groupNameDiv.addEventListener("click", handleGroupClick.bind({}, groupName));
     element.appendChild(icon);
     element.appendChild(groupNameDiv);
     return element;
@@ -133,12 +132,10 @@ function messageGenerator(message) {
  * @class
  * 
  * @property {View} views: The different views used in the website (each having an access key)
- * @property {String} groupViews: A list of all the chat-rooms access keys (for this.views) 
  * @property {View} activeGroup : the active chat-room view object
  * @property {View} previousGroup: the previous active chat-room (used to switch rooms) 
  */
 var Model = {
-    groupViews:{}, 
     groupListView:null,
     chatView:null,
     /** @todo: The messages property is not currently in use, feel free to 
@@ -161,11 +158,6 @@ var Model = {
     __init__: function() {
         this.groupListView = groupListView;
         this.chatView = groupChatView;
-        //this.views.newGroupForm = newGroupFormView; 
-        // this.activeGroup = this.views[groups[0]];
-        // All views are by default turned off
-        // this.activeGroup.toggleDisplay();
-
         // Should I update the view from here????
         
         // TODO: is this a good place to put this:
@@ -180,10 +172,6 @@ var Model = {
      * @param {String} groupName 
      */
     addGroup: function(channel){
-        // This is where the change would take place
-/*         let newGroupChatView = Object.create(groupChatView);
-        newGroupChatView.__init__(channel.name, channel.id);
-        this.groupViews[channel.id] = newGroupChatView; */
         this.channels[channel.id] = channel;
     },
 
@@ -192,10 +180,8 @@ var Model = {
     },
 
     clearGroups : function() {
-        this.groupViews = {};
         this.channels = {};
     },
-
 
     showUsername: function() {
         document.getElementById("navbar-username").innerHTML = Model.currentUser;
@@ -217,12 +203,15 @@ var changeGroup = new Event("changeGroup");
  * of the old view and the new view (now the current view);
  */
 document.addEventListener("changeGroup", function() {
-    if (Model.previousGroup != null){
-        Model.chatView.update();
-    }
+    // if (Model.previousGroup != null){
+    //     Model.chatView.update();
+    // }
     //@Alexandre jai comment ces deux lignes pck activeGroup est apparement undefined at this point
     //Model.activeGroup.toggleDisplay();
     //Model.activeGroup.changeHeader();
+
+    // This assumes that Model.activeGroup is a channel per the generator implementation
+    // You might need to clear the chat room beforehand
     document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
@@ -231,13 +220,9 @@ var updateGroups = new Event("updateGroups");
 /** @listens: for the newGroup event and updates the groupList view */
 document.addEventListener("updateGroups", function() {
     Model.groupListView.clearView();
-    Object.keys(Model.groupViews).forEach((groupId)=>{
-        Model.groupListView.addNewGroup(groupId);
+    Object.keys(Model.channels).forEach((channel)=>{
+        Model.groupListView.addNewGroup(channel.id);
     });
-    // Model.groupViews.forEach((groupId)=>{
-    //     if(!(groupId in Model.groupListView.displayedGroupIds))
-    //         Model.groupListView.addNewGroup(groupId);
-    // })  
 })
 
 
@@ -309,6 +294,8 @@ groupListView.clearView = function(){
 groupListView.addNewGroup = function(channelId) {
     if(Model.channels[channelId].name == "Général") {
         let defaultGroup = groupOptionGenerator("Général", "star");
+        // This adds the group change event to the second child, so the text box
+        defaultGroup.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
         this.contentNode.appendChild(defaultGroup);
     }
     // There should always be a General if the function gets to this point
@@ -319,6 +306,8 @@ groupListView.addNewGroup = function(channelId) {
         // let defaultGroupNode = this.contentNode.firstElementChild;
         let iconNode = groupOption.firstChild;
         iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
+        // This adds the group change event to the second child, so the text box
+        defaultGroup.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
         this.contentNode.appendChild(groupOption);
     }
 }
@@ -420,9 +409,11 @@ function handleAddNewGroup(event) {
  * @function
  * @param {String} groupName 
  */
-function handleGroupClick(groupName) {
-    Model.previousGroup = Model.activeGroup;
-    Model.activeGroup = Model.groupViews[groupName];
+function handleGroupClick(groupId) {
+    // No longer needed
+    // Model.previousGroup = Model.activeGroup;
+
+    Model.activeGroup = Model.channels[groupId];
     document.dispatchEvent(changeGroup);  
 }
 
