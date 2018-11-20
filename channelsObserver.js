@@ -8,6 +8,10 @@ function createInitialGroups(channels) {
     channels.forEach( (channel)=>{
         Model.addGroup(channel);
     })
+    if (Model.activeGroup == null){
+        Model.activeGroup = Model.channels["dbf646dc-5006-4d9f-8815-fd37514818ee"];
+        document.dispatchEvent(changeGroup);
+    }
     console.log(Model);
     document.dispatchEvent(updateGroups);
 }

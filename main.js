@@ -140,6 +140,7 @@ function messageGenerator(message) {
 var Model = {
     groupViews:{}, 
     groupListView:null,
+    chatView:null,
     /** @todo: The messages property is not currently in use, feel free to 
      * erase it, do whatever with it */
     channels: {},
@@ -159,6 +160,7 @@ var Model = {
      */
     __init__: function() {
         this.groupListView = groupListView;
+        this.chatView = groupChatView;
         //this.views.newGroupForm = newGroupFormView; 
         // this.activeGroup = this.views[groups[0]];
         // All views are by default turned off
@@ -168,6 +170,7 @@ var Model = {
         
         // TODO: is this a good place to put this:
         this.showUsername();
+        this.activeGroup = this.channels["dbf646dc-5006-4d9f-8815-fd37514818ee"];
     },
 
     /**
@@ -178,9 +181,9 @@ var Model = {
      */
     addGroup: function(channel){
         // This is where the change would take place
-        let newGroupChatView = Object.create(groupChatView);
+/*         let newGroupChatView = Object.create(groupChatView);
         newGroupChatView.__init__(channel.name, channel.id);
-        this.groupViews[channel.id] = newGroupChatView;
+        this.groupViews[channel.id] = newGroupChatView; */
         this.channels[channel.id] = channel;
     },
 
@@ -215,10 +218,11 @@ var changeGroup = new Event("changeGroup");
  */
 document.addEventListener("changeGroup", function() {
     if (Model.previousGroup != null){
-        Model.previousGroup.toggleDisplay();
+        Model.chatView.update();
     }
-    Model.activeGroup.toggleDisplay();
-    Model.activeGroup.changeHeader();
+    //@Alexandre jai comment ces deux lignes pck activeGroup est apparement undefined at this point
+    //Model.activeGroup.toggleDisplay();
+    //Model.activeGroup.changeHeader();
     document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
@@ -356,13 +360,14 @@ groupChatView.__init__ = function(groupName, groupId) {
     this.node = this.contentNode.lastElementChild;
 };
 
-groupChatView.changeHeader = function() {retirernotif
-    let headerTitle = this.headerNode.lasretirernotif
-    headerTitle.innerText = this.groupNamretirernotif
+
+groupChatView.changeHeader = function() {
+    let headerTitle = this.headerNode.lastElementChild;
+    headerTitle.innerText = this.groupName;
 }
 
-groupChatView.update = function() {
-    // This has to do with chat functionsretirernotif
+groupChatView.update = function(newId) {
+    // This has to do with chat functions
 }
 
 
@@ -477,6 +482,6 @@ function removeNotif() {
 // ========== initialize page =====================
 // ================================================
 
-
-groupListView.__init__();
 Model.__init__();
+groupListView.__init__();
+
