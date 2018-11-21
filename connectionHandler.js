@@ -30,8 +30,12 @@ ws.onmessage = function(msg) {
     console.log(message.eventType);
     switch (message.eventType) {
         case "updateChannelsList": 
-        console.log("Stuff");
+            console.log("Stuff");
             createInitialGroups(message.data);
+            break;
+        case "onGetChannel":
+            console.log(msg);
+            Model.chatView.loadMessages(msg);
             break;
         case "onJoinChannel":
             onJoinChannel(message.data);
@@ -42,7 +46,8 @@ ws.onmessage = function(msg) {
         case "onMessage":
             // Users joining the channels will be sent here
             // Message will be received from the id
-            console.log(message)
+            sortMessage(message);
+            console.log(message);
             break;
         case "onError":
             handleErrors(message.data);

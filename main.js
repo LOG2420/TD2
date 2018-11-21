@@ -88,10 +88,10 @@ function newGroupFormGenerator() {
 //     }
 //     return box;
 // }
-function chatViewGenerator(channel) {
+function chatViewGenerator(msgList) {
     let chatRoom = classfiedDivGenerator("chat-room");
-    for (msg in channel.messages){
-        chatRoom.appendChild(messageGenerator(msg));
+    for (msg in msgList.data.messages){
+        chatRoom.appendChild(messageGenerator(msg.data));
     }
     return chatRoom;
 }
@@ -158,11 +158,9 @@ var Model = {
     __init__: function() {
         this.groupListView = groupListView;
         this.chatView = groupChatView;
-        // Should I update the view from here????
-        
-        // TODO: is this a good place to put this:
         this.showUsername();
-        this.activeGroup = this.channels["dbf646dc-5006-4d9f-8815-fd37514818ee"];
+
+        //this.activeGroup = this.channels["dbf646dc-5006-4d9f-8815-fd37514818ee"];
     },
 
     /**
@@ -185,6 +183,16 @@ var Model = {
 
     showUsername: function() {
         document.getElementById("navbar-username").innerHTML = Model.currentUser;
+    },
+
+    addMessage: function(msg) {
+
+        for (x in this.channels){
+            if (x.id == msg.channelId)
+                x.messages.push(msg);
+                return x;
+        }
+        //If messages arent matched with a channel, maybe because the group hasent been added yet, update channels then run code again
     }
 
 }
@@ -212,16 +220,22 @@ document.addEventListener("changeGroup", function() {
 
     // This assumes that Model.activeGroup is a channel per the generator implementation
     // You might need to clear the chat room beforehand
-    document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
+    Model.chatView.clearView();
+    Model.chatView.requestMessages();
+    //document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
 /** @event: This event is triggers when a user creates a group*/
 var updateGroups = new Event("updateGroups");
 /** @listens: for the newGroup event and updates the groupList view */
 document.addEventListener("updateGroups", function() {
+    //PAS SUR ICI *************************************************************************************************
+    /* if (Model.groupListView === null)
+        return; */
+    console.log("update the groups");
     Model.groupListView.clearView();
-    Object.keys(Model.channels).forEach((channel)=>{
-        Model.groupListView.addNewGroup(channel.id);
+    Object.keys(Model.channels).forEach((channelId)=>{
+        Model.groupListView.addNewGroup(channelId);
     });
 })
 
@@ -307,7 +321,7 @@ groupListView.addNewGroup = function(channelId) {
         let iconNode = groupOption.firstChild;
         iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
         // This adds the group change event to the second child, so the text box
-        defaultGroup.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
+        groupOption.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
         this.contentNode.appendChild(groupOption);
     }
 }
@@ -338,25 +352,38 @@ groupChatView.node = document.querySelector("#message-interface");
 groupChatView.contentNode = document.querySelector("#message-interface .content");
 groupChatView.headerNode = document.querySelector("#message-interface .header");
 
-groupChatView.__init__ = function(groupName, groupId) {
-    this.groupName = groupName;
-    this.groupId = groupId;
+groupChatView.__init__ = function() {
     /** @todo: this generator needs to be properly implemented */
-    let newChatRoom = chatViewGenerator(groupName);
 
-    newChatRoom.style.display = "none";
-    this.contentNode.appendChild(newChatRoom);
-    this.node = this.contentNode.lastElementChild;
 };
 
+groupChatView.requestMessages = function() {
+    let message = new Message("onGetChannel", Model.activeGroup.id, "", Model.currentUser, new Date() );
+    let messageJson = JSON.stringify(message);
+    Model.ws.send(messageJson);
+}
+
+groupChatView.loadMessages = function(msg) {
+    let newChatRoom = chatViewGenerator(msg);
+    this.contentNode.appendChild(newChatRoom);
+}
 
 groupChatView.changeHeader = function() {
     let headerTitle = this.headerNode.lastElementChild;
     headerTitle.innerText = this.groupName;
 }
 
-groupChatView.update = function(newId) {
+groupChatView.update = function(message) {
     // This has to do with chat functions
+    document.querySelector("#chat-room").appendChild(messageGenerator(message));
+}
+
+groupChatView.clearView = function() {
+    if (this.contentNode.childNodes[0] != document.getElementById("message-write"))
+        this.contentNode.removeChild(this.contentNode.childNodes[0]);
+    /* while (this.contentNode.firstChild) {
+        this.contentNode.removeChild(this.contentNode.firstChild);
+    } */
 }
 
 
@@ -475,4 +502,5 @@ function removeNotif() {
 
 Model.__init__();
 groupListView.__init__();
+groupChatView.__init__();
 
