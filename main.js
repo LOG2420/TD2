@@ -121,12 +121,40 @@ function messageGenerator(message) {
         msg.appendChild(userName);
     }
     msgContent.innerText = message.data;
-    timeStamp.innerText = message.timestamp;
+    timeStamp.innerText = formatTimeStamp(message.timestamp);
     msg.appendChild(msgContent);
     msg.appendChild(timeStamp);
     return msg;
 }
 
+//"2018-11-22T20:40:03.342Z"
+
+function formatTimeStamp(timeStamp) {
+    var d = new Date (timeStamp)
+    switch(Model.language){
+        case "French":
+            let day = getWeekDayFR(d);
+            let dayNum = d.getDate();
+            let hours = d.getHours();
+            if (parseInt(hours, 10) < 10) { hours = "0" + hours}
+            let minutes = d.getMinutes();
+            if (parseInt(minutes, 10) < 10) { minutes = "0" + minutes}
+            return day + " " + dayNum + ", " + hours + ":" + minutes
+    }
+}
+
+function getWeekDayFR(d) {
+    var weekday = new Array(7);
+    weekday[0] = "DIM";
+    weekday[1] = "LUN";
+    weekday[2] = "MAR";
+    weekday[3] = "MER";
+    weekday[4] = "JEU";
+    weekday[5] = "VEN";
+    weekday[6] = "SAM";
+    var n = weekday[d.getDay()];
+    return n;
+}
 // =========================================
 // ============== MVC ======================
 // =========================================
@@ -143,6 +171,7 @@ function messageGenerator(message) {
  * @property {View} previousGroup: the previous active chat-room (used to switch rooms) 
  */
 var Model = {
+    language: "French",
     groupListView:null,
     chatView:null,
     /** @todo: The messages property is not currently in use, feel free to 
@@ -223,12 +252,13 @@ document.addEventListener("changeGroup", function() {
     // }
     //@Alexandre jai comment ces deux lignes pck activeGroup est apparement undefined at this point
     //Model.activeGroup.toggleDisplay();
-    //Model.activeGroup.changeHeader();
+
 
     // This assumes that Model.activeGroup is a channel per the generator implementation
     // You might need to clear the chat room beforehand
     Model.chatView.clearView();
     Model.chatView.requestMessages();
+    Model.chatView.changeHeader();
     //document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
@@ -372,11 +402,13 @@ groupChatView.requestMessages = function() {
 groupChatView.loadMessages = function(msg) {
     let newChatRoom = chatViewGenerator(msg);
     this.contentNode.appendChild(newChatRoom);
+    var element = document.getElementById("chat-room");
+    element.scrollTop = element.scrollHeight;
 }
 
 groupChatView.changeHeader = function() {
     let headerTitle = this.headerNode.lastElementChild;
-    headerTitle.innerText = this.groupName;
+    headerTitle.innerText = Model.activeGroup.name;
 }
 
 groupChatView.update = function(message) {
@@ -507,6 +539,10 @@ envoyer.addEventListener("click", onNewMessage);
 
 
 function onNewMessage() {
+    if (Model.activeGroup.joinStatus == false) {
+        alert("Vous devez vous joindre à ce groupe pour envoyer des messages");
+        return;
+    }
     let messageData = document.getElementById("entry-value").value;
     let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
     let jsonMessage = JSON.stringify(messageObj);
