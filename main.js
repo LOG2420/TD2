@@ -501,6 +501,7 @@ envoyer.addEventListener("click", onNewMessage);
 
 function onNewMessage() {
     let messageData = document.getElementById("entry-value").value;
+    document.getElementById("entry-value").value = "";
     let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
     let jsonMessage = JSON.stringify(messageObj);
     Model.ws.send(jsonMessage);
