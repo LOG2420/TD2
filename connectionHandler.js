@@ -8,12 +8,24 @@ ws.onopen = function() {
 
 ws.onerror = function(err) {
     console.log(err);
-    alert("%cServer is down", "color:red");
+    console.log("here")
+    // alert("%cServer is down", "color:red");
+    let error = new CustomEvent("error", {detail: "Server is down"});
+    document.dispatchEvent(error);
     setTimeout(function(){ location.reload(true);}, 5000);
 }
 
+ws.onclose = function() {
+    let error = new CustomEvent("error", {detail: "websocket has closed;\n Page will reload in 5s"});
+    document.dispatchEvent(error);
+    setTimeout(function(){ location.reload(true);}, 5000);
+    // Deal with stuff here
+}
+
 function handleErrors(message) {
-    alert("%c" + message, "color:red");
+    // alert("%c" + message, "color:red");
+    let error = new CustomEvent("error", {detail: message});
+    document.dispatchEvent(error);
 }
 
 

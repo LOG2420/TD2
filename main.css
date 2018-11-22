@@ -381,4 +381,37 @@ body {
 }
 
 
+/* =============================== */
+/* ==========Error Box =========== */
+/* =============================== */
+
+#error-box {
+    position: fixed;
+    left: 30%;
+    top:30%;
+    height: 100px;
+    width: 210px;
+    background-color:white;
+    border: 1px solid black;
+}
+
+#error-message {
+    color:red;
+    font-size:18px;
+}
+
+.default-tag {
+    padding:2px;
+    border-radius: 6px;
+    border: 1px solid blue;
+
+    font-size: 12px;
+    font-style: italic;
+    color:blue;
+
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+
 

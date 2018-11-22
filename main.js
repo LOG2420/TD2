@@ -244,6 +244,7 @@ document.addEventListener("updateGroups", function() {
     Object.keys(Model.channels).forEach((channelId)=>{
         Model.groupListView.addNewGroup(channelId);
     });
+    Model.groupListView.floatPositiveToTop()
 })
 
 
@@ -312,26 +313,36 @@ groupListView.clearView = function(){
     }
 }
 
+groupListView.addEventListeners = function(groupSelectionElement,channelId) {
+    let iconNode = groupSelectionElement.firstChild;
+    iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
+    // This adds the group change event to the second child, so the text box
+    groupSelectionElement.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
+    groupSelectionElement.setAttribute("_id", channelId);
+}
+
 groupListView.addNewGroup = function(channelId) {
     if(Model.channels[channelId].name == "Général") {
         let defaultGroup = groupOptionGenerator("Général", "star");
         // This adds the group change event to the second child, so the text box
         defaultGroup.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
+        // add default here
+        let defaultTag = document.createElement("span");
+        defaultTag.classList.add("default-tag");
+        defaultTag.innerText = "default";
+        defaultGroup.appendChild(defaultTag);
         this.contentNode.appendChild(defaultGroup);
     }
     // There should always be a General if the function gets to this point
     else {
         let iconName = Model.channels[channelId].joinStatus ? "minus" : "plus";
         let groupOption = groupOptionGenerator(Model.channels[channelId].name, iconName);
-
+        this.addEventListeners(groupOption, channelId)
         // let defaultGroupNode = this.contentNode.firstElementChild;
-        let iconNode = groupOption.firstChild;
-        iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
-        // This adds the group change event to the second child, so the text box
-        groupOption.childNodes[1].addEventListener("click", handleGroupClick.bind({}, channelId));
         this.contentNode.appendChild(groupOption);
     }
 }
+
 
 groupListView.addAfterDefaultGroup = function(element) {
     let defaultGroupNode = this.contentNode.firstElementChild;
@@ -346,6 +357,34 @@ groupListView.toggleForm = function() {
     else {
         let form = newGroupFormGenerator();
         this.addAfterDefaultGroup(form);
+    }
+}
+
+// This needs to be called
+groupListView.moveGroupToTop = function(groupId) {
+    let groupList = this.contentNode.children;
+    let indexOfGroupToMove = 0;
+    for (let index = 0; index < groupList.length; index++) {
+        if(groupId  == groupList[index].getAttribute("_id"))
+            indexOfGroupToMove = index;
+    }
+    this.contentNode.removeChild(groupList[indexOfGroupToMove]);
+    let iconName = Model.channels[groupId].joinStatus ? "minus" : "plus";
+    let groupOption = groupOptionGenerator(Model.channels[groupId].name, iconName);
+    this.addEventListeners(groupOption, groupId);
+    this.addAfterDefaultGroup(groupOption);
+}
+
+groupListView.floatPositiveToTop = function() {
+    let groupList = this.contentNode.children;
+    // Lets exclude the general for now
+    for (let index = 1; index < groupList.length; index++) {
+        let group = groupList[index];
+        let groupId = group.getAttribute("_id");
+        let groupStatus = Model.channels[groupId].joinStatus;
+        if(groupStatus) {
+            this.moveGroupToTop(groupId)
+        }
     }
 }
 
@@ -366,7 +405,15 @@ groupChatView.__init__ = function() {
 groupChatView.requestMessages = function() {
     let message = new Message("onGetChannel", Model.activeGroup.id, "", Model.currentUser, new Date() );
     let messageJson = JSON.stringify(message);
-    Model.ws.send(messageJson);
+    // This is for catching an error if the ws is closed (will only work if error is thrown
+    // in sync)
+    try{
+        Model.ws.send(messageJson);
+    }
+    catch(error) {
+        document.dispatchEvent(new CustomEvent("error", {detail:error}))
+    }
+
 }
 
 groupChatView.loadMessages = function(msg) {
@@ -388,6 +435,7 @@ groupChatView.update = function(message) {
         scrolled=true;
     });
 }
+
 
 function updateScroll(scrolled){
     if(!scrolled){
@@ -439,7 +487,15 @@ function handleAddNewGroup(event) {
     // let id = Math.floor(Math.random()*1000000).toString();
     let message = new Message("onCreateChannel", null, name, Model.currentUser, new Date() );
     let messageJson = JSON.stringify(message);
-    Model.ws.send(messageJson);
+    // This is for catching an error if the ws is closed (will only work if error is thrown
+    // in sync)
+    try {
+        Model.ws.send(messageJson);
+    }
+    catch(error) {
+        document.dispatchEvent(new CustomEvent("error", {detail:error}))
+    }
+    
 
     // document.dispatchEvent(newGroup);
     // document.dispatchEvent(toggleForm);
@@ -472,7 +528,15 @@ function iconChannelToggle(groupId, event) {
     message = new Message(eventType, groupId, null, Model.currentUser, new Date());
 
     let jsonMessage = JSON.stringify(message);
-    Model.ws.send(jsonMessage);
+    // This is for catching an error if the ws is closed (will only work if error is thrown
+    // in sync)
+    try {
+        Model.ws.send(jsonMessage);
+    }
+    catch(error) {
+        document.dispatchEvent(new CustomEvent("error", {detail:error}))
+    }
+
 
 }
 
@@ -508,10 +572,16 @@ envoyer.addEventListener("click", onNewMessage);
 
 function onNewMessage() {
     let messageData = document.getElementById("entry-value").value;
-    document.getElementById("entry-value").value = "";
     let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
     let jsonMessage = JSON.stringify(messageObj);
-    Model.ws.send(jsonMessage);
+    // This is for catching an error if the ws is closed (will only work if error is thrown
+    // in sync)
+    try {
+        Model.ws.send(jsonMessage);
+    }
+    catch(error) {
+        document.dispatchEvent(new CustomEvent("error", {detail:error}))
+    }
     document.querySelector("#entry-value").value = "";
     //document.dispatchEvent(newMessage)
 }
@@ -524,6 +594,30 @@ function removeNotif() {
     document.dispatchEvent(removeNotifications);
 }
 
+// ================================================
+// ========== Error handling ======================
+// ================================================
+
+document.addEventListener("error", function(event){
+    let errorMessage = event.detail;
+    toggleErrorBox(errorMessage);
+})
+
+function toggleErrorBox(errorMessage) {
+    let errorBox = document.querySelector("#error-box");
+    if (errorBox.style.display == "none") {
+        errorBox.firstElementChild.innerText = errorMessage;
+        errorBox.style.display = "block";
+    } else {
+        errorBox.style.display = "none";
+    }
+}
+
+errorBox = document.querySelector("#error-box");
+errorBox.addEventListener("click", toggleErrorBox);
+
+
+
 
 
 // ================================================
@@ -533,4 +627,9 @@ function removeNotif() {
 Model.__init__();
 groupListView.__init__();
 groupChatView.__init__();
+
+document.getElementById("entry-value").focus();
+document.getElementById("entry-value").select();
+
+
 
