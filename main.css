@@ -140,9 +140,9 @@ body {
 
 #notification {
     position: absolute;
+    top: 20px;
     overflow: visible;
     margin-left: 10px;
-    margin-bottom: 25px;
     text-align: center;
     font-size: 10px;
     border-radius: 5px;
@@ -210,11 +210,15 @@ body {
     display: block;
     margin-top: 5px;
     margin-left: 10px;
+    font-style: italic;
 }
 
 #outbound-time {
-    float:right;
+    position: relative;
     display: block;
+    font-style: italic;
+    padding-left: 85%;
+    padding-top: 8%;
 }
 
 #msg-box-other {
