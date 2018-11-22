@@ -8,10 +8,12 @@ ws.onopen = function() {
 
 ws.onerror = function(err) {
     console.log(err);
+    alert("%cServer is down", "color:red");
+    setTimeout(function(){ location.reload(true);}, 5000);
 }
 
 function handleErrors(message) {
-    alert(message);
+    alert("%c" + message, "color:red");
 }
 
 

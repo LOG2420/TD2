@@ -7,5 +7,6 @@ function sortMessage(message) {
     }
     else
         Model.newMessages++;
+        document.dispatchEvent(newMessage);
     // Either the message is sent to another group and the notification is incremented
 }

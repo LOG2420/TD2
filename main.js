@@ -361,7 +361,6 @@ groupChatView.headerNode = document.querySelector("#message-interface .header");
 
 groupChatView.__init__ = function() {
     /** @todo: this generator needs to be properly implemented */
-
 };
 
 groupChatView.requestMessages = function() {
@@ -384,17 +383,18 @@ groupChatView.update = function(message) {
     // This has to do with chat functions
     document.querySelector("#chat-room").appendChild(messageGenerator(message));
     var scrolled = false;
-    function updateScroll(){
-        if(!scrolled){
-            var element = document.getElementById("yourDivID");
-            element.scrollTop = element.scrollHeight;
-            }
-        }
-
+    updateScroll(scrolled);
     $("#chat-room").on('scroll', function(){
         scrolled=true;
     });
 }
+
+function updateScroll(scrolled){
+    if(!scrolled){
+        var element = document.getElementById("chat-room");
+        element.scrollTop = element.scrollHeight;
+        }
+    }
 
 groupChatView.clearView = function() {
     for (i = 0; i < this.contentNode.childNodes.length; i++){
@@ -497,7 +497,14 @@ function refreshPage() {
  * @function
  */
 let envoyer = document.querySelector("#send");
+function sendOnEnter(e) {
+    var code = (e.keyCode ? e.keyCode : e.which);
+    if (code == 13) { //Enter keycode
+        onNewMessage();
+    }
+}
 envoyer.addEventListener("click", onNewMessage);
+
 
 function onNewMessage() {
     let messageData = document.getElementById("entry-value").value;
@@ -505,6 +512,7 @@ function onNewMessage() {
     let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
     let jsonMessage = JSON.stringify(messageObj);
     Model.ws.send(jsonMessage);
+    document.querySelector("#entry-value").value = "";
     //document.dispatchEvent(newMessage)
 }
 
