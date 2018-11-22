@@ -1,4 +1,5 @@
-var ws = new WebSocket("ws://log2420-nginx.info.polymtl.ca/chatservice?username=Alexandre");
+let url = "ws://log2420-nginx.info.polymtl.ca/chatservice?username=" + Model.currentUser;
+var ws = new WebSocket(url);
 Model.setSocket(ws);
 
 ws.onopen = function() {
@@ -34,8 +35,8 @@ ws.onmessage = function(msg) {
             createInitialGroups(message.data);
             break;
         case "onGetChannel":
-            console.log(msg);
-            Model.chatView.loadMessages(msg);
+            console.log(message);
+            Model.chatView.loadMessages(message);
             break;
         case "onJoinChannel":
             onJoinChannel(message.data);

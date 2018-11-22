@@ -37,6 +37,12 @@ function classfiedDivGenerator(className) {
     return div;
 }
 
+function idDivGenerator(idName) {
+    let div = document.createElement("div");
+    div.setAttribute("id", idName);
+    return div;
+}
+
 /**
  * This function creates an element that will act as a group 
  * option button in the group list function of the html
@@ -89,9 +95,9 @@ function newGroupFormGenerator() {
 //     return box;
 // }
 function chatViewGenerator(msgList) {
-    let chatRoom = classfiedDivGenerator("chat-room");
-    for (msg in msgList.data.messages){
-        chatRoom.appendChild(messageGenerator(msg.data));
+    let chatRoom = idDivGenerator("chat-room");
+    for (i = 0; i < msgList.data.messages.length; i++) {
+        chatRoom.appendChild(messageGenerator(msgList.data.messages[i]));
     }
     return chatRoom;
 }
@@ -102,19 +108,20 @@ function chatViewGenerator(msgList) {
  */
 function messageGenerator(message) {
     if (message.sender == Model.currentUser){
-        let msg = classfiedDivGenerator("outbound-msg");
-        let msgContent = classfiedDivGenerator("msg-box-self");
-        let timeStamp = classfiedDivGenerator("outbound-time");
+        var msg = idDivGenerator("outbound-msg");
+        var msgContent = idDivGenerator("msg-box-self");
+        var timeStamp = idDivGenerator("outbound-time");
     }
     else {
-        let msg = classfiedDivGenerator("incoming-msg");
-        let userName = classfiedDivGenerator("user-name");
-        let msgContent = classfiedDivGenerator("msg-box-other");
-        let timeStamp = classfiedDivGenerator("incoming-time");
+        var msg = idDivGenerator("incoming-msg");
+        var userName = idDivGenerator("user-name");
+        userName.innerText = message.sender;
+        var msgContent = idDivGenerator("msg-box-other");
+        var timeStamp = idDivGenerator("incoming-time");
         msg.appendChild(userName);
     }
-    msgContent.innerText(message.data);
-    timeStamp.innerText(message.timeStamp);
+    msgContent.innerText = message.data;
+    timeStamp.innerText = message.timestamp;
     msg.appendChild(msgContent);
     msg.appendChild(timeStamp);
     return msg;
@@ -185,7 +192,7 @@ var Model = {
         document.getElementById("navbar-username").innerHTML = Model.currentUser;
     },
 
-    addMessage: function(msg) {
+    /* addMessage: function(msg) {
 
         for (x in this.channels){
             if (x.id == msg.channelId)
@@ -194,7 +201,7 @@ var Model = {
         }
         //If messages arent matched with a channel, maybe because the group hasent been added yet, update channels then run code again
     }
-
+ */
 }
 
 // ============ Model  Events ======================
@@ -376,14 +383,25 @@ groupChatView.changeHeader = function() {
 groupChatView.update = function(message) {
     // This has to do with chat functions
     document.querySelector("#chat-room").appendChild(messageGenerator(message));
+    var scrolled = false;
+    function updateScroll(){
+        if(!scrolled){
+            var element = document.getElementById("yourDivID");
+            element.scrollTop = element.scrollHeight;
+            }
+        }
+
+    $("#chat-room").on('scroll', function(){
+        scrolled=true;
+    });
 }
 
 groupChatView.clearView = function() {
-    if (this.contentNode.childNodes[0] != document.getElementById("message-write"))
-        this.contentNode.removeChild(this.contentNode.childNodes[0]);
-    /* while (this.contentNode.firstChild) {
-        this.contentNode.removeChild(this.contentNode.firstChild);
-    } */
+    for (i = 0; i < this.contentNode.childNodes.length; i++){
+        console.log(this.contentNode.childNodes[i]);
+        if (this.contentNode.childNodes[i].id == "chat-room")
+            this.contentNode.removeChild(this.contentNode.childNodes[i]);
+    }
 }
 
 
@@ -482,8 +500,11 @@ let envoyer = document.querySelector("#send");
 envoyer.addEventListener("click", onNewMessage);
 
 function onNewMessage() {
-    Model.newMessages += 1;
-    document.dispatchEvent(newMessage)
+    let messageData = document.getElementById("entry-value").value;
+    let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
+    let jsonMessage = JSON.stringify(messageObj);
+    Model.ws.send(jsonMessage);
+    //document.dispatchEvent(newMessage)
 }
 
 let notifBubble = document.querySelector("#notification");
