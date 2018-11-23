@@ -181,7 +181,7 @@ var Model = {
     previousGroup: null, //The previous group
     /* Temporary */
     currentUser: "Spaghet",
-    newMessages: 0,
+    newMessages: [],
 
     /**
      * This function will initialize the model and trigger the 
@@ -608,6 +608,10 @@ function onNewMessage() {
         return;
     }
     let messageData = document.getElementById("entry-value").value;
+    if (messageData == ""){
+        alert("Vous ne pouvez pas envoyer un message vide!");
+        return;
+    }
     let messageObj = new Message("onMessage", Model.activeGroup.id, messageData, Model.currentUser, new Date());
     let jsonMessage = JSON.stringify(messageObj);
     // This is for catching an error if the ws is closed (will only work if error is thrown
