@@ -1,4 +1,3 @@
-//let url = "ws://inter-host.ca:3000/chatservice?username=" + Model.currentUser;
 let url = "ws://log2420-nginx.info.polymtl.ca/chatservice?username=" + Model.currentUser;
 var ws = new WebSocket(url);
 Model.setSocket(ws);

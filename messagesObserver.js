@@ -10,7 +10,8 @@ function sortMessage(message) {
     }
     else if (Model.channels[message.channelId].joinStatus){
         playSound(message)
-        Model.newMessages++;
+        Model.newMessagesPerChannel[message.channelId]++;
+        Model.newMessagesTotal++;
         document.dispatchEvent(newMessage);
     }
     // Either the message is sent to another group and the notification is incremented

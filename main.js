@@ -117,6 +117,8 @@ function messageGenerator(message) {
         var userName = idDivGenerator("user-name");
         userName.innerText = message.sender;
         var msgContent = idDivGenerator("msg-box-other");
+        if (message.sender == "Admin")
+            $("msg-box-other").attr("id", "msg-box-admin");
         var timeStamp = idDivGenerator("incoming-time");
         msg.appendChild(userName);
     }
@@ -181,7 +183,8 @@ var Model = {
     previousGroup: null, //The previous group
     /* Temporary */
     currentUser: "Spaghet",
-    newMessages: [],
+    newMessagesPerChannel: {},
+    newMessagesTotal: 0,
 
     /**
      * This function will initialize the model and trigger the 
@@ -207,6 +210,7 @@ var Model = {
      */
     addGroup: function(channel){
         this.channels[channel.id] = channel;
+        this.newMessagesPerChannel[channel.id] = 0;
     },
 
     setSocket : function(ws) {
@@ -259,6 +263,7 @@ document.addEventListener("changeGroup", function() {
     Model.chatView.clearView();
     Model.chatView.requestMessages();
     Model.chatView.changeHeader();
+    Model.chatView.removeNotif();
     //document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
@@ -290,12 +295,12 @@ var newMessage = new Event("newMessage");
 document.addEventListener("newMessage", function() {
     let notif = document.getElementById("notification");
     notif.style.display = "inline";
-    notif.innerText = Model.newMessages;
+    notif.innerText = Model.newMessagesTotal;
 })
 
 var removeNotifications = new Event("removeNotifications");
 
-document.addEventListener("noNewMessage", function() {
+document.addEventListener("removeNotifications", function() {
     document.querySelector("#notification").style.display = "hidden";
 })
 
@@ -484,6 +489,13 @@ groupChatView.clearView = function() {
     }
 }
 
+groupChatView.removeNotif = function() {
+    Model.newMessagesTotal -= Model.newMessagesPerChannel[Model.activeGroup.id];
+    Model.newMessagesPerChannel[Model.activeGroup.id] = 0;
+    if (Model.newMessagesTotal == 0)
+        document.dispatchEvent(removeNotifications);
+}
+
 
 // ========== Controller Logic ===================
 // ===============================================
@@ -547,7 +559,7 @@ function handleGroupClick(groupId) {
     // Model.previousGroup = Model.activeGroup;
 
     Model.activeGroup = Model.channels[groupId];
-    document.dispatchEvent(changeGroup);  
+    document.dispatchEvent(changeGroup);
 }
 
 // Group id will get binded to function
@@ -587,7 +599,7 @@ function refreshPage() {
 }
 
 /**
- * This function is TEMPORARY, for Testing purposes
+ * This function is TEMPORARY, for Testing purposes (not anymore )
  * Will update the number of new messages when the user presses the send button
  * 
  * @function
@@ -596,6 +608,7 @@ let envoyer = document.querySelector("#send");
 function sendOnEnter(e) {
     var code = (e.keyCode ? e.keyCode : e.which);
     if (code == 13) { //Enter keycode
+        e.preventDefault();
         onNewMessage();
     }
 }
@@ -608,7 +621,9 @@ function onNewMessage() {
         return;
     }
     let messageData = document.getElementById("entry-value").value;
-    if (messageData == ""){
+    if (messageData == "" || messageData == "\n"){
+        console.log(messageData);
+        console.log("\n");
         alert("Vous ne pouvez pas envoyer un message vide!");
         return;
     }
@@ -624,14 +639,6 @@ function onNewMessage() {
     }
     document.querySelector("#entry-value").value = "";
     //document.dispatchEvent(newMessage)
-}
-
-let notifBubble = document.querySelector("#notification");
-notifBubble.addEventListener("click", removeNotif);
-
-function removeNotif() {
-    Model.newMessages = 0;
-    document.dispatchEvent(removeNotifications);
 }
 
 // ================================================
