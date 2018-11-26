@@ -37,6 +37,11 @@ function classfiedDivGenerator(className) {
     return div;
 }
 
+/**
+ * This funciton creates a div element that has an id
+ * @function
+ * @param {String} idName : the name of the id for the div
+ */
 function idDivGenerator(idName) {
     let div = document.createElement("div");
     div.setAttribute("id", idName);
@@ -83,17 +88,8 @@ function newGroupFormGenerator() {
 /**
  * @function This function creates an element for the chat view
  * in which all the messages will be displayed
- * @param {Channel} channel : The active channel
+ * @param {Message} msgList : an onGetChannel type message, containing the messages to be displayed in the chatbox
  */
-// function chatViewGenerator(groupName, messageList) {
-//     console.log("chatViewGenerator needs to be built");
-//     let box = document.createElement("div");
-//     box.innerText = groupName;
-//     for(msg in messageList) {
-//         chatRoom.appendChild(messageGenerator(msg));
-//     }
-//     return box;
-// }
 function chatViewGenerator(msgList) {
     let chatRoom = idDivGenerator("chat-room");
     for (i = 0; i < msgList.data.messages.length; i++) {
@@ -107,6 +103,7 @@ function chatViewGenerator(msgList) {
  * @param Message message 
  */
 function messageGenerator(message) {
+    // Applying the right css id to each message
     if (message.sender == Model.currentUser){
         var msg = idDivGenerator("outbound-msg");
         var msgContent = idDivGenerator("msg-box-self");
@@ -117,8 +114,6 @@ function messageGenerator(message) {
         var userName = idDivGenerator("user-name");
         userName.innerText = message.sender;
         var msgContent = idDivGenerator("msg-box-other");
-        if (message.sender == "Admin")
-            $("msg-box-other").attr("id", "msg-box-admin");
         var timeStamp = idDivGenerator("incoming-time");
         msg.appendChild(userName);
     }
@@ -129,15 +124,20 @@ function messageGenerator(message) {
     return msg;
 }
 
-//"2018-11-22T20:40:03.342Z"
-
+/**
+ * @function: This function formats the date to be displayed under each message
+ * @param timeStamp contains the timestamp information to be formatted
+ */
 function formatTimeStamp(timeStamp) {
     var d = new Date (timeStamp)
+    //This allows for future language changing, but is only setup in french for now
     switch(Model.language){
         case "French":
+            //We then build a string with the right format, using built in Date functions
             let day = getWeekDayFR(d);
             let dayNum = d.getDate();
             let hours = d.getHours();
+            //Add a 0 for hours between 0 and 9 (09:05 instead of 9:5)
             if (parseInt(hours, 10) < 10) { hours = "0" + hours}
             let minutes = d.getMinutes();
             if (parseInt(minutes, 10) < 10) { minutes = "0" + minutes}
@@ -145,6 +145,10 @@ function formatTimeStamp(timeStamp) {
     }
 }
 
+/**
+ * @function: This function returns the string associated with the weekday number
+ * @param {Date} d contains the Date of the message
+ */
 function getWeekDayFR(d) {
     var weekday = new Array(7);
     weekday[0] = "DIM";
@@ -154,8 +158,8 @@ function getWeekDayFR(d) {
     weekday[4] = "JEU";
     weekday[5] = "VEN";
     weekday[6] = "SAM";
-    var n = weekday[d.getDay()];
-    return n;
+    var w = weekday[d.getDay()];
+    return w;
 }
 // =========================================
 // ============== MVC ======================
@@ -165,51 +169,48 @@ function getWeekDayFR(d) {
 // =========================================
 
 /**
- * @todo: Ask if this is still considered a class
  * @class
  * 
+ * @property {String} language: The default language used is french
  * @property {View} views: The different views used in the website (each having an access key)
- * @property {View} activeGroup : the active chat-room view object
- * @property {View} previousGroup: the previous active chat-room (used to switch rooms) 
+ * @property {Channel} activeGroup : the active chat-room (channel) view object
+ * @property channels: The list of channels
+ * @property {String} currentUser: The default username of the user
+ * @property newMessagesPerChannel: A dictionary containing the number of new messages for each channel key
+ * @property newMessagesTotal: The total number of new messages to be displayed in the notification bubble
  */
 var Model = {
     language: "French",
     groupListView:null,
     chatView:null,
-    /** @todo: The messages property is not currently in use, feel free to 
-     * erase it, do whatever with it */
     channels: {},
-    activeGroup: null, //The current group
-    previousGroup: null, //The previous group
-    /* Temporary */
-    currentUser: "Spaghet",
+    activeGroup: null,
+    //previousGroup: null, //The previous group 
+    currentUser: "Username",
     newMessagesPerChannel: {},
     newMessagesTotal: 0,
 
     /**
      * This function will initialize the model and trigger the 
-     * creation of all of the necessary views that need to present on page load
+     * creation of all of the necessary views that need to be present on page load
      * @todo: Ask if this counts as a constructor
      * @method
      * @constructor
-     * @param {Array[Strings]} groups : The groups that are initialized on page load 
      */
     __init__: function() {
         this.groupListView = groupListView;
         this.chatView = groupChatView;
-        this.showUsername();
-
-        //this.activeGroup = this.channels["dbf646dc-5006-4d9f-8815-fd37514818ee"];
     },
 
     /**
      * This method adds a group to the Model by creating the chat view
      * and placing it in its views object property
      * @method
-     * @param {String} groupName 
+     * @param {Channel} channel 
      */
     addGroup: function(channel){
         this.channels[channel.id] = channel;
+        //New messages for each channel are also initialized here
         this.newMessagesPerChannel[channel.id] = 0;
     },
 
@@ -220,21 +221,6 @@ var Model = {
     clearGroups : function() {
         this.channels = {};
     },
-
-    showUsername: function() {
-        document.getElementById("navbar-username").innerHTML = Model.currentUser;
-    },
-
-    /* addMessage: function(msg) {
-
-        for (x in this.channels){
-            if (x.id == msg.channelId)
-                x.messages.push(msg);
-                return x;
-        }
-        //If messages arent matched with a channel, maybe because the group hasent been added yet, update channels then run code again
-    }
- */
 }
 
 // ============ Model  Events ======================
@@ -244,37 +230,28 @@ var Model = {
  * modifies the Model and the views need to be changed
  */
 
-/** @event: This event is triggers when a user changes group */
+/** @event: This event is triggered when a user changes channels */
 var changeGroup = new Event("changeGroup");
 
 /** @listens: for the changeGroup event and toggles the displays
  * of the old view and the new view (now the current view);
  */
 document.addEventListener("changeGroup", function() {
-    // if (Model.previousGroup != null){
-    //     Model.chatView.update();
-    // }
-    //@Alexandre jai comment ces deux lignes pck activeGroup est apparement undefined at this point
-    //Model.activeGroup.toggleDisplay();
-
-
-    // This assumes that Model.activeGroup is a channel per the generator implementation
-    // You might need to clear the chat room beforehand
+    // Clear the chatView
     Model.chatView.clearView();
+    // Load the active channels messages
     Model.chatView.requestMessages();
+    // Change the chatroom's channel name in the header
     Model.chatView.changeHeader();
+    // Remove the correct number of new messages from the notification bubble
     Model.chatView.removeNotif();
-    //document.querySelector("#chat-room").appendChild(chatViewGenerator(Model.activeGroup));
 })
 
-/** @event: This event is triggers when a user creates a group*/
+/** @event: This event is triggered when a user creates a group*/
 var updateGroups = new Event("updateGroups");
+
 /** @listens: for the newGroup event and updates the groupList view */
 document.addEventListener("updateGroups", function() {
-    //PAS SUR ICI *************************************************************************************************
-    /* if (Model.groupListView === null)
-        return; */
-    console.log("update the groups");
     Model.groupListView.clearView();
     Object.keys(Model.channels).forEach((channelId)=>{
         Model.groupListView.addNewGroup(channelId);
@@ -289,8 +266,9 @@ document.addEventListener("toggleForm", function() {
     Model.groupListView.toggleForm();
 })
 
-/** @event: This event triggers a notification bubble to appear with the number of new messages */
+/** @event: This event is triggered when a new message is received */
 var newMessage = new Event("newMessage");
+
 /** @listens: for the new message event and updates the view */
 document.addEventListener("newMessage", function() {
     let notif = document.getElementById("notification");
@@ -298,10 +276,12 @@ document.addEventListener("newMessage", function() {
     notif.innerText = Model.newMessagesTotal;
 })
 
+/** @event: This event is triggered when the number of new messages is decreased to 0 */
 var removeNotifications = new Event("removeNotifications");
 
+/** @listens: for the remove notifications event and hides the bubble*/
 document.addEventListener("removeNotifications", function() {
-    document.querySelector("#notification").style.display = "hidden";
+    document.querySelector("#notification").style.display = "none";
 })
 
 
@@ -311,8 +291,7 @@ document.addEventListener("removeNotifications", function() {
 //======================================================
 
 
-// This is an Interface for a view, but since OOP is a lie in JS,
-// We will not be creating a class for this with the class keyword.
+// This is an Interface for a view, but w e will not be creating a class for this with the class keyword.
 /**
  * @class
  * @abstract
@@ -338,8 +317,6 @@ groupListView.node = document.querySelector("#group-interface");
 groupListView.contentNode = document.querySelector('#group-interface .content')
 
 groupListView.__init__ = function() {
-    // let defaultOption = groupOptionGenerator("Général", "star");
-    // this.contentNode.appendChild(defaultOption);
 };
 
 groupListView.clearView = function(){
@@ -425,7 +402,6 @@ groupListView.floatPositiveToTop = function() {
 
 /**
  * @class GroupChatView
- * @todo
  */
 var groupChatView = Object.create(View);
 
@@ -434,9 +410,22 @@ groupChatView.contentNode = document.querySelector("#message-interface .content"
 groupChatView.headerNode = document.querySelector("#message-interface .header");
 
 groupChatView.__init__ = function() {
-    /** @todo: this generator needs to be properly implemented */
+    //This simply adds the current username to the navbar display:
+    this.showUsername();
 };
 
+/**
+ * This method shows the user's username in the navbar
+ * @method
+ */
+groupChatView.showUsername = function() {
+    document.getElementById("navbar-username").innerHTML = Model.currentUser;
+},
+
+/**
+ * This method retrieves the list of messages from the server
+ * @method
+ */
 groupChatView.requestMessages = function() {
     let message = new Message("onGetChannel", Model.activeGroup.id, "", Model.currentUser, new Date() );
     let messageJson = JSON.stringify(message);
@@ -448,24 +437,38 @@ groupChatView.requestMessages = function() {
     catch(error) {
         document.dispatchEvent(new CustomEvent("error", {detail:error}))
     }
-
 }
 
+/**
+ * This method loads the channels messages into the chat view
+ * @method
+ * @param {Message} msg 
+ */
 groupChatView.loadMessages = function(msg) {
     let newChatRoom = chatViewGenerator(msg);
     this.contentNode.appendChild(newChatRoom);
     var element = document.getElementById("chat-room");
+    // By default, we scroll to the bottom of the chat view
     element.scrollTop = element.scrollHeight;
 }
 
+/**
+ * This method changes the channel name in the header
+ * @method
+ */
 groupChatView.changeHeader = function() {
     let headerTitle = this.headerNode.lastElementChild;
     headerTitle.innerText = Model.activeGroup.name;
 }
 
+/**
+ * This method adds new messages to the chat view as they are received
+ * @method
+ * @param {Message} msg 
+ */
 groupChatView.update = function(message) {
-    // This has to do with chat functions
     document.querySelector("#chat-room").appendChild(messageGenerator(message));
+    // If the user has not scrolled up in the chat view, we scroll to show the new message
     var scrolled = false;
     updateScroll(scrolled);
     $("#chat-room").on('scroll', function(){
@@ -473,7 +476,7 @@ groupChatView.update = function(message) {
     });
 }
 
-
+// Used with the update method to scroll to the bottom of the chat view
 function updateScroll(scrolled){
     if(!scrolled){
         var element = document.getElementById("chat-room");
@@ -481,18 +484,32 @@ function updateScroll(scrolled){
         }
     }
 
+/**
+ * This method clears the previous chatview to make room for the new one
+ * @method
+ */
 groupChatView.clearView = function() {
+    // Removes all chatrooms (children of the contentNode)
+    // Even though there should only be one, this ensures there is never more than one
     for (i = 0; i < this.contentNode.childNodes.length; i++){
-        console.log(this.contentNode.childNodes[i]);
         if (this.contentNode.childNodes[i].id == "chat-room")
             this.contentNode.removeChild(this.contentNode.childNodes[i]);
     }
 }
 
+/**
+ * This method handles the number of new messages
+ * @method
+ */
 groupChatView.removeNotif = function() {
+    // Subtract the number of new messages that have been seen from the total
     Model.newMessagesTotal -= Model.newMessagesPerChannel[Model.activeGroup.id];
+    // Update the number of messages to be displayed in the bubble
+    document.querySelector("#notifications").innerText = Model.newMessagesTotal;
+    // Current channel's number of new messages is now 0
     Model.newMessagesPerChannel[Model.activeGroup.id] = 0;
-    if (Model.newMessagesTotal == 0)
+    // If the total falls to 0, the notification bubble is hidden
+    if (Model.newMessagesTotal <= 0)
         document.dispatchEvent(removeNotifications);
 }
 
@@ -539,10 +556,6 @@ function handleAddNewGroup(event) {
     catch(error) {
         document.dispatchEvent(new CustomEvent("error", {detail:error}))
     }
-    
-
-    // document.dispatchEvent(newGroup);
-    // document.dispatchEvent(toggleForm);
 }
 
 
@@ -555,9 +568,6 @@ function handleAddNewGroup(event) {
  * @param {String} groupName 
  */
 function handleGroupClick(groupId) {
-    // No longer needed
-    // Model.previousGroup = Model.activeGroup;
-
     Model.activeGroup = Model.channels[groupId];
     document.dispatchEvent(changeGroup);
 }
@@ -599,31 +609,36 @@ function refreshPage() {
 }
 
 /**
- * This function is TEMPORARY, for Testing purposes (not anymore )
- * Will update the number of new messages when the user presses the send button
+ * This function is called when the user presses enter to send a message
  * 
  * @function
  */
 let envoyer = document.querySelector("#send");
 function sendOnEnter(e) {
     var code = (e.keyCode ? e.keyCode : e.which);
-    if (code == 13) { //Enter keycode
+    // If the keyboard key was #13 (enter), we send the message
+    if (code == 13) {
+        // We dont want to do a carriage return, just send the message
         e.preventDefault();
         onNewMessage();
     }
 }
+
+/**
+ * This function is called when the user clicks envoyer to send a message
+ * 
+ * @function
+ */
 envoyer.addEventListener("click", onNewMessage);
-
-
 function onNewMessage() {
+    // The user cannot send a message if they are not part of the channel
     if (Model.activeGroup.joinStatus == false) {
         alert("Vous devez vous joindre à ce groupe pour envoyer des messages");
         return;
     }
+    // The user cannot send an empty message
     let messageData = document.getElementById("entry-value").value;
     if (messageData == "" || messageData == "\n"){
-        console.log(messageData);
-        console.log("\n");
         alert("Vous ne pouvez pas envoyer un message vide!");
         return;
     }
@@ -637,8 +652,8 @@ function onNewMessage() {
     catch(error) {
         document.dispatchEvent(new CustomEvent("error", {detail:error}))
     }
+    //Once the message has been sent, they text area is emptied
     document.querySelector("#entry-value").value = "";
-    //document.dispatchEvent(newMessage)
 }
 
 // ================================================

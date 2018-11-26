@@ -27,7 +27,6 @@ body {
     height:560px;
     width: 700px;
     overflow: hidden;
-    /*margin-left: 250px;*/
 }
 
 
@@ -141,7 +140,6 @@ body {
 #notification {
     position: absolute;
     top: 20px;
-    overflow: visible;
     margin-left: 10px;
     text-align: center;
     font-size: 10px;
@@ -150,7 +148,7 @@ body {
     color: white;
     height: 15px;
     width: 11px;
-    display: hidden;
+    display: none;
 }
 
 
@@ -160,9 +158,8 @@ body {
 
 #message-interface {
     float:left;
-    width:488px; /* (490 - 2 for border) */
+    width:488px;
     height:var(--main-view-height);
-    /* border: 1px solid var(--navbar-gray); */
 }
 
 /* Legacy, switch to new format */
@@ -240,16 +237,6 @@ body {
     word-wrap: break-word;
 }
 
-#msg-box-admin {
-    background-color: #FFFF00 !important;
-}
-
-#msg-box-self:after {
-    clear: both;
-    content: "";
-    display: block;
-}
-
 #chatbox-user-name {
     color: #aaaaaa;
     margin-bottom: 5px;
@@ -267,7 +254,6 @@ body {
     border-top: 1px solid var(--navbar-gray);
     border-bottom : 1px solid var(--navbar-gray);
     background: var(--header-green);
-
 }
 
 #message-write div {
@@ -284,8 +270,6 @@ body {
 }
 
 #message-write :nth-child(2) {
-    /* position: absolute;
-    left: 65px; */
     width: 320px;
 }
 
