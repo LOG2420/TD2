@@ -174,10 +174,10 @@ function getWeekDayFR(d) {
  * @property {String} language: The default language used is french
  * @property {View} views: The different views used in the website (each having an access key)
  * @property {Channel} activeGroup : the active chat-room (channel) view object
- * @property channels: The list of channels
+ * @property {Array<Channel>} channels: The list of channels
  * @property {String} currentUser: The default username of the user
- * @property newMessagesPerChannel: A dictionary containing the number of new messages for each channel key
- * @property newMessagesTotal: The total number of new messages to be displayed in the notification bubble
+ * @property {Message} newMessagesPerChannel: A dictionary containing the number of new messages for each channel key
+ * @property {Number} newMessagesTotal: The total number of new messages to be displayed in the notification bubble
  */
 var Model = {
     language: "French",
@@ -308,7 +308,7 @@ var View = {
 
 
 /**
- * @class groupoListView
+ * @class groupListView
  */
 var groupListView = Object.create(View);
 
@@ -316,15 +316,24 @@ groupListView.node = document.querySelector("#group-interface");
 
 groupListView.contentNode = document.querySelector('#group-interface .content')
 
-groupListView.__init__ = function() {
-};
-
+/**
+ * @method clearView
+ * 
+ */
 groupListView.clearView = function(){
     while (this.contentNode.firstChild) {
         this.contentNode.removeChild(this.contentNode.firstChild);
     }
 }
 
+/**
+ * @function addEventListeners
+ * Adds custom event listener to a group selection html element
+ * 
+ * @param {HTMLelement} groupSelectionElement
+ * @param {String} channelId
+ * 
+ */
 groupListView.addEventListeners = function(groupSelectionElement,channelId) {
     let iconNode = groupSelectionElement.firstChild;
     iconNode.addEventListener('click', iconChannelToggle.bind({}, channelId));
@@ -333,6 +342,11 @@ groupListView.addEventListeners = function(groupSelectionElement,channelId) {
     groupSelectionElement.setAttribute("_id", channelId);
 }
 
+/**
+ * @function addNewGroup
+ * 
+ * @param {String} channelId
+ */
 groupListView.addNewGroup = function(channelId) {
     if(Model.channels[channelId].name == "Général") {
         let defaultGroup = groupOptionGenerator("Général", "star");
@@ -355,12 +369,21 @@ groupListView.addNewGroup = function(channelId) {
     }
 }
 
-
+/**
+ * @function addAfterDefaultGroup
+ * 
+ * @param {HTMLelement} element - element to be added after default group in right part of view 
+ */
 groupListView.addAfterDefaultGroup = function(element) {
     let defaultGroupNode = this.contentNode.firstElementChild;
     this.contentNode.insertBefore(element, defaultGroupNode.nextElementSibling);
 }
 
+/**
+ * @function toggleForm
+ * Toggles the display of the new group form
+ * 
+ */
 groupListView.toggleForm = function() {
     let node = document.querySelector("#new-group-form");
     if (node) { //If the node points to somewhere
@@ -372,7 +395,11 @@ groupListView.toggleForm = function() {
     }
 }
 
-// This needs to be called
+/**
+ * @function moveGroupToTop
+ * Moves group html element for corresponding group id to the top of the list
+ * @param {String} groupId - 
+ */
 groupListView.moveGroupToTop = function(groupId) {
     let groupList = this.contentNode.children;
     let indexOfGroupToMove = 0;
@@ -387,6 +414,11 @@ groupListView.moveGroupToTop = function(groupId) {
     this.addAfterDefaultGroup(groupOption);
 }
 
+
+/**
+ * @function floatPositiveToTop
+ * Brings all of the groups that have a joinStatus of true to the top of the list
+ */
 groupListView.floatPositiveToTop = function() {
     let groupList = this.contentNode.children;
     // Lets exclude the general for now
@@ -665,6 +697,12 @@ document.addEventListener("error", function(event){
     toggleErrorBox(errorMessage);
 })
 
+
+/**
+ * @function
+ * Displays an error box with the given error message
+ * @param {errorMessage} errorMessage 
+ */
 function toggleErrorBox(errorMessage) {
     let errorBox = document.querySelector("#error-box");
     if (errorBox.style.display == "none") {
@@ -677,9 +715,6 @@ function toggleErrorBox(errorMessage) {
 
 errorBox = document.querySelector("#error-box");
 errorBox.addEventListener("click", toggleErrorBox);
-
-
-
 
 
 // ================================================

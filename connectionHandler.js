@@ -24,17 +24,6 @@ function handleErrors(message) {
     document.dispatchEvent(error);
 }
 
-
-function onJoinChannel(message) {
-    console.log("%c Joining Channel", "color:blue"); 
-    console.log(message);
-}
-
-function onLeaveChannel(message) {
-    console.log("%c Leaving Channel", "color:purple"); 
-    console.log(message);
-}
-
 ws.onmessage = function(msg) {
     let message = JSON.parse(msg.data);
     console.log(message.eventType);
@@ -45,12 +34,6 @@ ws.onmessage = function(msg) {
         case "onGetChannel":
             console.log(message);
             Model.chatView.loadMessages(message);
-            break;
-        case "onJoinChannel":
-            onJoinChannel(message.data);
-            break;
-        case "onLeaveChannel":
-            onLeaveChannel(message.data);
             break;
         case "onMessage":
             // Users joining the channels will be sent here
@@ -68,13 +51,7 @@ ws.onmessage = function(msg) {
     }
 }
 
-ws.onerror = function() {
-
-}
-
-
 
 window.addEventListener("beforeunload", function(e){
-    // Do something
+    ws.close()
 }, false);
-

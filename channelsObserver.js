@@ -1,4 +1,8 @@
-
+/**
+ * @function createInitialGroups
+ * This function resets the state of the available group in the groupListView
+ * @param {channels} channels 
+ */
 function createInitialGroups(channels) {
     console.log("Create Init")
     console.log(channels);
